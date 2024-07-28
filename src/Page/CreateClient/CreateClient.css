@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
+
+/* Styles for CreateClient Component */
+
+.create-client-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); /* Dégradé agréable pour le fond de la page */
+}
+
+.create-client-container {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 600px;
+  max-width: 100%;
+  overflow-y: auto; /* Ajout de la barre de défilement */
+  max-height: 90vh; /* Limite la hauteur pour éviter le dépassement de l'écran */
+}
+
+.page-title {
+  font-size: 2rem;
+  color: #006400;
+  font-family: 'Roboto Mono', monospace;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-section {
+  margin-bottom: 20px;
+}
+
+.form-section h2 {
+  font-size: 1.5rem;
+  color: #006400;
+  margin-bottom: 10px;
+}
+
+.client-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.client-form .MuiTextField-root,
+.client-form .MuiSelect-root {
+  margin-bottom: 20px;
+}
+
+.client-form button {
+  padding: 10px;
+  background-color: #006400;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.client-form button:hover {
+  background-color: #004d00;
+}
+
+.vertical-menu {
+  width: 200px; 
+  background-color: #ffffff; 
+  height: 100vh; 
+  position: fixed; 
+  top: 0;
+  left: 0;
+  padding-top: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1; /* Assurez-vous que la barre de navigation est au-dessus du formulaire */
+}
+
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+}
+
+.vertical-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.vertical-menu ul li {
+  margin: 10px 0;
+  border-bottom: 1px solid #006400;
+}
+
+.menu-button {
+  display: block;
+  padding: 15px;
+  background-color: #ffffff;
+  color: #006400;
+  text-decoration: none;
+  border: 1px solid #006400;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  width: 100%;
+}
+
+.menu-button:hover {
+  background-color: #f0f8ff;
+  transform: translateY(-2px);
+}
+
+.logout-button {
+  background-color: #ffffff;
+  color: #006400;
+  border: 1px solid #006400;
+  border-radius: 5px;
+  text-align: center;
+}

@@ -1,0 +1,39 @@
+.list-cards-container {
+    padding: 20px;
+  }
+  
+  .search-bar-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .search-bar {
+    margin-right: 10px;
+  }
+  
+  .search-label {
+    margin-left: 10px;
+  }
+  
+  .cards-grid {
+    margin-top: 20px;
+  }
+  
+  .card-grid-item {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .card {
+    width: 100%;
+  }
+  
+  .card-info {
+    margin-bottom: 10px;
+  }
+  
+  .custom-button {
+    width: 48%;
+  }
+  

@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
+
+.list-clients-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  max-width: 300px;
+  margin-right: 10px;
+  border-radius: 25px;
+}
+
+.search-label {
+  color: #006400;
+  font-weight: bold;
+}
+
+.search-bar .MuiOutlinedInput-root {
+  border-radius: 25px;
+}
+
+.search-bar .MuiInputLabel-outlined {
+  color: #006400;
+}
+
+.search-bar .MuiOutlinedInput-notchedOutline {
+  border-color: #006400;
+}
+
+.search-bar .MuiInputBase-input {
+  color: #006400;
+}
+
+.search-bar .MuiSvgIcon-root {
+  color: #006400;
+}
+
+.clients-grid {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.client-grid-item {
+  display: flex;
+  justify-content: center;
+}
+
+.client-card {
+  background: linear-gradient(135deg, #ff6fd8 0%, #3813c2 100%);
+  border-radius: 15px;
+  color: white;
+  width: 100%;
+  max-width: 350px;
+  margin: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.client-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.client-card .MuiCardContent-root {
+  padding: 20px;
+}
+
+.client-card .MuiTypography-h6,
+.client-card .MuiTypography-body2 {
+  color: white;
+}
+
+.client-card .MuiCardActions-root {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.client-card .custom-button {
+  background-color: #006400;
+  color: white;
+}
+
+.client-info {
+  font-family: 'Roboto Mono', monospace;
+}
+
+.client-plan {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-top: 10px;
+}
