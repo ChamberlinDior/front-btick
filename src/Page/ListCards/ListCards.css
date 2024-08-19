@@ -1,39 +1,50 @@
-.list-cards-container {
-    padding: 20px;
-  }
-  
-  .search-bar-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .search-bar {
-    margin-right: 10px;
-  }
-  
-  .search-label {
-    margin-left: 10px;
-  }
-  
-  .cards-grid {
-    margin-top: 20px;
-  }
-  
-  .card-grid-item {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .card {
-    width: 100%;
-  }
-  
-  .card-info {
-    margin-bottom: 10px;
-  }
-  
-  .custom-button {
-    width: 48%;
-  }
-  
+.list-transactions-container {
+  padding: 20px;
+  background-color: #f9f9fb;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.table-container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.table-header {
+  background-color: #4a4e69;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.search-field {
+  width: 100%;
+}
+
+h1 {
+  text-align: center;
+  color: #333333;
+}
+
+.table-row:nth-of-type(odd) {
+  background-color: #f2f2f2;
+}
+
+.table-row:hover {
+  background-color: #dcdcdc;
+  cursor: pointer;
+}
+
+.dialog-content {
+  overflow-y: auto;
+}
+
+.tab {
+  background-color: #e0e0e0;
+  color: #333333;
+  font-weight: bold;
+}
+
+.typography {
+  color: #212529;
+  margin-bottom: 8px;
+}

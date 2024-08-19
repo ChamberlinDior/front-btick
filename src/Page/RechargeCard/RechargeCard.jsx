@@ -1,39 +1,36 @@
 import React, { useState } from 'react';
-import { rechargeClientByRfid } from '../../axiosConfig';
-import './RechargeCard.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material';
+import { darkTheme } from './theme/darkTheme';
+import { Navbar } from './Page/Navbar/Navbar';
+import Home from './Page/Home/Home';
+import CreateClient from './Page/CreateClient/CreateClient';
+import CheckCardValidity from './Page/CheckCardValidity/CheckCardValidity';
+import ListClients from './Page/ListClients/ListClients';
+import ListCards from './Page/ListCards/ListCards';
+import AssignRFID from './Page/AssignRFID/AssignRFID';
+import './App.css';
 
-const RechargeCard = () => {
-  const [cardNumber, setCardNumber] = useState('');
-  const [planType, setPlanType] = useState('');
-
-  const handleRecharge = async () => {
-    try {
-      const data = await rechargeClientByRfid(cardNumber, planType);
-      alert(`Card recharged: ${JSON.stringify(data)}`);
-    } catch (error) {
-      console.error("Error response:", error.response);
-      alert(`Failed to recharge card: ${error.response?.data || error.message}`);
-    }
-  };
-
+function App() {
   return (
-    <div className="recharge-card-container">
-      <h1>Recharge Card</h1>
-      <input
-        type="text"
-        placeholder="Card Number"
-        value={cardNumber}
-        onChange={(e) => setCardNumber(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Plan Type (daily, weekly, monthly)"
-        value={planType}
-        onChange={(e) => setPlanType(e.target.value)}
-      />
-      <button onClick={handleRecharge}>Recharge Card</button>
-    </div>
+    <ThemeProvider theme={darkTheme}>
+      <Router>
+        <div className="app-container">
+          <Navbar />
+          <div className="content">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/create-client" element={<CreateClient />} />
+              <Route path="/check-card-validity" element={<CheckCardValidity />} />
+              <Route path="/list-clients" element={<ListClients />} />
+              <Route path="/list-cards" element={<ListCards />} />
+              <Route path="/assign-rfid" element={<AssignRFID />} />
+            </Routes>
+          </div>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
-};
+}
 
-export default RechargeCard;
+export default App;
