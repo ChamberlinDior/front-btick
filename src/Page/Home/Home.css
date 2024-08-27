@@ -1,10 +1,12 @@
 /* Styles généraux */
 .home-container {
   padding: 20px;
-  background-color: #f4f4f8;  /* Fond plus clair pour un contraste doux */
+  background: linear-gradient(135deg, #eceff1, #f0f4f7);
   min-height: 100vh;
-  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.5);  /* Effet de vitrine */
-  font-family: 'Arial', sans-serif;  /* Police plus lisible */
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.5);
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Palette de couleurs vives */
@@ -14,6 +16,8 @@
   --vivid-red: #dc3545;
   --vivid-yellow: #ffc107;
   --vivid-purple: #6f42c1;
+  --vivid-cyan: #17a2b8;
+  --vivid-orange: #fd7e14;
 }
 
 /* Style des boutons */
@@ -22,7 +26,7 @@
   border-color: var(--vivid-blue);
   border-radius: 20px;
   font-size: 18px;
-  padding: 15px 30px;
+  padding: 10px 20px;
   font-weight: bold;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -31,7 +35,7 @@
   background-color: var(--vivid-green);
   border-color: var(--vivid-green);
   transform: translateY(-2px);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Style des modals */
@@ -76,21 +80,26 @@
   background-color: #f8f9fa;
 }
 
-/* Styles de la carte - affichage normal */
+/* Survol des lignes de tableau */
+.ant-table-tbody > tr:hover > td {
+  background-color: rgba(255, 223, 0, 0.3);  /* Jaune vitreux */
+  color: black;
+}
+
+/* Styles de la carte */
 .carte-preview {
   background: linear-gradient(135deg, var(--vivid-purple), var(--vivid-blue));
   border-radius: 20px;
   padding: 20px;
   color: white;
   font-weight: bold;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
 }
 
 .carte-preview:hover {
-  transform: scale(1.08);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+  transform: scale(1.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* TRANS'URB styling */
@@ -98,7 +107,7 @@
   position: absolute;
   top: 10px;
   right: 20px;
-  font-family: 'Helvetica Neue', sans-serif;  /* Police similaire à Facebook */
+  font-family: 'Helvetica Neue', sans-serif;
   font-size: 24px;
   font-weight: bold;
   color: white;
@@ -132,25 +141,25 @@
   color: var(--vivid-blue);
 }
 
-/* Style pour les colonnes de la table */
-.ant-table-thead > tr > th, 
-.ant-table-tbody > tr > td {
-  padding: 16px 8px;
-  font-size: 14px;
-}
-
 /* Style pour la barre supérieure */
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--vivid-blue);
 }
 
-/* Ajout d'un effet de survol sur les lignes de la table */
-.ant-table-tbody > tr:hover > td {
-  background-color: var(--vivid-blue);
-  color: white;
+/* Ajout d'un conteneur avec défilement */
+.table-container {
+  flex: 1;
+  max-height: calc(100vh - 150px); /* Prend presque toute la hauteur */
+  overflow-y: auto; /* Défilement vertical */
+  background-color: white; /* Conserve la couleur de fond blanche */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Légère ombre */
+  border-radius: 10px;
+  padding: 20px;
 }
 
 /* Animation pour les boutons */
@@ -159,7 +168,8 @@
 }
 
 .ant-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 /* Effets visuels supplémentaires */
@@ -169,11 +179,11 @@
 }
 
 .carte-preview h3 {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
 }
 
 .carte-preview p {
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 /* Style des messages d'erreur et de succès */
@@ -190,4 +200,14 @@
 .ant-message-error {
   background-color: var(--vivid-red);
   color: white;
+}
+
+/* Ajout d'un effet de néon futuriste pour les titres */
+.ant-table-thead > tr > th, .card-title {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* Ajouter des effets de survol futuristes */
+.carte-preview:hover {
+  background: linear-gradient(135deg, var(--vivid-blue), var(--vivid-green));
 }

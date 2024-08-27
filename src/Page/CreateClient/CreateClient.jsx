@@ -1,73 +1,69 @@
 import React, { useState } from 'react';
-import { createClient } from '../../axiosConfig';
-import './CreateClient.css';
+import { Form, Input, Button, message } from 'antd';
+import axiosInstance from '../../axiosConfig';
 
-function CreateClient() {
-  const [formData, setFormData] = useState({
-    nom: '',
-    prenom: '',
-    quartier: '',
-    ville: '',
-    agentCreation: '',
-  });
+const CreateClient = () => {
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleCreateClient = async (values) => {
+    setLoading(true);
     try {
-      const response = await createClient(formData);
-      console.log("Client créé avec succès:", response);
+      const response = await axiosInstance.post('/clients', values);
+      message.success('Client créé avec succès.');
+      setLoading(false);
     } catch (error) {
-      console.error("Erreur lors de la création du client:", error);
+      message.error('Erreur lors de la création du client.');
+      setLoading(false);
     }
   };
 
   return (
-    <div className="create-client-container">
-      <h1>Créer un nouveau client</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="nom"
-          placeholder="Nom"
-          value={formData.nom}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="prenom"
-          placeholder="Prénom"
-          value={formData.prenom}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="quartier"
-          placeholder="Quartier"
-          value={formData.quartier}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="ville"
-          placeholder="Ville"
-          value={formData.ville}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="agentCreation"
-          placeholder="Nom de l'Agent"
-          value={formData.agentCreation}
-          onChange={handleChange}
-        />
-        <button type="submit">Créer le client</button>
-      </form>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Créer un nouveau client</h1>
+      <Form onFinish={handleCreateClient} style={styles.form}>
+        <Form.Item name="nom" label="Nom" rules={[{ required: true, message: 'Veuillez entrer le nom.' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="prenom" label="Prénom" rules={[{ required: true, message: 'Veuillez entrer le prénom.' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="quartier" label="Quartier" rules={[{ required: true, message: 'Veuillez entrer le quartier.' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="ville" label="Ville" rules={[{ required: true, message: 'Veuillez entrer la ville.' }]}>
+          <Input />
+        </Form.Item>
+        <Button type="primary" htmlType="submit" loading={loading} style={styles.button}>
+          Créer
+        </Button>
+      </Form>
     </div>
   );
-}
+};
+
+const styles = {
+  container: {
+    maxWidth: '600px',
+    margin: '50px auto',
+    padding: '20px',
+    borderRadius: '8px',
+    backgroundColor: '#fff',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+  },
+  title: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: '20px',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  button: {
+    width: '100%',
+    marginTop: '20px',
+  },
+};
 
 export default CreateClient;
