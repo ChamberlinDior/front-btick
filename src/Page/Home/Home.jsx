@@ -407,9 +407,9 @@ const Home = () => {
         width="80vw"
         bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
       >
-        <p>Transaction 1: Recharge 1000 XAF</p>
+        <p>Transaction 1: Recharge 100 XAF</p>
         <p>Transaction 2: Recharge 500 XAF</p>
-        <p>Transaction 3: Recharge 2000 XAF</p>
+        <p>Transaction 3: Recharge 2500 XAF</p>
       </Modal>
     </div>
   );

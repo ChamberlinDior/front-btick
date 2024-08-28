@@ -1,60 +1,51 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
-const Login = ({ setUserRole }) => {
-    const [email, setEmail] = useState('');
-    const navigate = useNavigate();
+const Login = ({ setIsAuthenticated }) => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const handleLogin = () => {
-        if (email === "admin@example.com") {
-            setUserRole('admin');
-            navigate('/');
-        } else if (email === "user@example.com") {
-            setUserRole('user');
-            navigate('/');
-        } else {
-            message.error("E-mail non reconnu.");
-        }
-    };
+  const handleLogin = (values) => {
+    setLoading(true);
+    const { username, password } = values;
 
-    return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>Connexion</h1>
-            <Form onFinish={handleLogin} style={styles.form}>
-                <Form.Item label="E-mail" rules={[{ required: true, message: 'Veuillez entrer votre e-mail.' }]}>
-                    <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" style={styles.button}>
-                        Se connecter
-                    </Button>
-                </Form.Item>
-            </Form>
-        </div>
-    );
-};
+    // Vérification des identifiants
+    if (username === 'Dior' && password === 'Dior') {
+      message.success('Connexion réussie!');
+      setIsAuthenticated(true);
+      navigate('/home'); // Rediriger vers la page d'accueil après la connexion
+    } else {
+      message.error('Identifiant ou mot de passe incorrect.');
+      setLoading(false);
+    }
+  };
 
-const styles = {
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: '#f0f4f7',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 40,
-    },
-    form: {
-        width: 300,
-    },
-    button: {
-        width: '100%',
-    },
+  return (
+    <div className="login-container">
+      <Form onFinish={handleLogin} className="login-form">
+        <h2>Connexion</h2>
+        <Form.Item
+          name="username"
+          rules={[{ required: true, message: 'Veuillez entrer votre nom d’utilisateur!' }]}
+        >
+          <Input placeholder="Nom d’utilisateur" />
+        </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: 'Veuillez entrer votre mot de passe!' }]}
+        >
+          <Input.Password placeholder="Mot de passe" />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading} className="login-button">
+            Connexion
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
 };
 
 export default Login;
