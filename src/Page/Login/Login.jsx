@@ -1,23 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../axiosConfig';
 import './Login.css';
 
 const Login = ({ setIsAuthenticated }) => {
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Récupérer tous les utilisateurs depuis le backend
+    const fetchUsers = async () => {
+      try {
+        const response = await axiosInstance.get('/utilisateurs');
+        setUsers(response.data);
+      } catch (error) {
+        message.error("Erreur lors de la récupération des utilisateurs.");
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleLogin = (values) => {
     setLoading(true);
-    const { username, password } = values;
+    const { uniqueUserNumber, nom } = values;
 
-    // Vérification des identifiants
-    if (username === 'Dior' && password === 'Dior') {
+    // Vérification des identifiants sans sélection du rôle
+    const user = users.find(
+      (user) => user.uniqueUserNumber === uniqueUserNumber && user.nom.toLowerCase() === nom.toLowerCase()
+    );
+
+    if (user) {
       message.success('Connexion réussie!');
       setIsAuthenticated(true);
       navigate('/home'); // Rediriger vers la page d'accueil après la connexion
     } else {
-      message.error('Identifiant ou mot de passe incorrect.');
+      message.error('Identifiant incorrect.');
       setLoading(false);
     }
   };
@@ -27,16 +46,16 @@ const Login = ({ setIsAuthenticated }) => {
       <Form onFinish={handleLogin} className="login-form">
         <h2>Connexion</h2>
         <Form.Item
-          name="username"
-          rules={[{ required: true, message: 'Veuillez entrer votre nom d’utilisateur!' }]}
+          name="uniqueUserNumber"
+          rules={[{ required: true, message: 'Veuillez entrer votre numéro unique!' }]}
         >
-          <Input placeholder="Nom d’utilisateur" />
+          <Input placeholder="Numéro unique" />
         </Form.Item>
         <Form.Item
-          name="password"
-          rules={[{ required: true, message: 'Veuillez entrer votre mot de passe!' }]}
+          name="nom"
+          rules={[{ required: true, message: 'Veuillez entrer votre nom!' }]}
         >
-          <Input.Password placeholder="Mot de passe" />
+          <Input placeholder="Nom" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading} className="login-button">

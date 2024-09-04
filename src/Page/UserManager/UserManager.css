@@ -1,0 +1,25 @@
+.user-management-container {
+  padding: 20px;
+  background-color: #f0f2f5;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.table-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-preview {
+  text-align: center;
+}
+
+.card-content {
+  margin: 10px 0;
+}

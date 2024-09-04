@@ -4,6 +4,7 @@ import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import axiosInstance from '../../axiosConfig';
 import './Home.css';
 import QRCode from 'qrcode.react';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -34,6 +35,8 @@ const Home = () => {
   const [isFullScreenModalVisible, setIsFullScreenModalVisible] = useState(false);
   const [isTransactionModalVisible, setIsTransactionModalVisible] = useState(false);
 
+  const navigate = useNavigate();
+
   const fetchClients = useCallback(async () => {
     setLoading(true);
     try {
@@ -50,7 +53,6 @@ const Home = () => {
     fetchClients();
   }, [fetchClients]);
 
-  // Fonction pour rafraîchir les données
   const handleRefresh = () => {
     fetchClients();
     message.success("Données mises à jour avec succès !");
@@ -67,7 +69,7 @@ const Home = () => {
       setIsModalVisible(false);
       setIsPreviewVisible(true);
       setLoading(false);
-      handleRefresh(); // Mise à jour des données après la création d'un client
+      handleRefresh();
     } catch (error) {
       message.error("Erreur lors de la création du client.");
       setLoading(false);
@@ -89,7 +91,7 @@ const Home = () => {
       setIsRFIDModalVisible(false);
       setLoading(false);
       message.success("RFID ajouté avec succès !");
-      handleRefresh(); // Mise à jour des données après l'ajout du RFID
+      handleRefresh();
     } catch (error) {
       message.error("Erreur lors de l'ajout du RFID.");
       setLoading(false);
@@ -112,7 +114,7 @@ const Home = () => {
       await axiosInstance.put(`/clients/${currentClient.id}/deactivate`);
       message.success("Carte désactivée avec succès !");
       setCurrentClient({ ...currentClient, actif: false });
-      handleRefresh(); // Mise à jour des données après la désactivation de la carte
+      handleRefresh();
     } catch (error) {
       message.error("Erreur lors de la désactivation de la carte.");
     }
@@ -125,7 +127,7 @@ const Home = () => {
       await axiosInstance.put(`/clients/${currentClient.id}/reactivate`);
       message.success("Carte réactivée avec succès !");
       setCurrentClient({ ...currentClient, actif: true });
-      handleRefresh(); // Mise à jour des données après la réactivation de la carte
+      handleRefresh();
     } catch (error) {
       message.error("Erreur lors de la réactivation de la carte.");
     }
@@ -288,19 +290,52 @@ const Home = () => {
 
   const renderCardPreview = () => {
     if (!currentClient) return null;
+
+    const cardStyle = {
+      width: '640px',  // Larger width for the card
+      height: '400px',  // Larger height for the card, 4x original size
+      borderRadius: '12px',
+      padding: '30px',
+      boxSizing: 'border-box',
+    };
+
     return (
-      <Card className="carte-preview" hoverable>
-        <div className="card-content">
-          <h3 className="card-title">Numéro: {currentClient.numClient}</h3>
-          <p><strong>Nom:</strong> {currentClient.nom}</p>
-          <p><strong>Prénom:</strong> {currentClient.prenom}</p>
-          <p><strong>Ville:</strong> {currentClient.ville}</p>
-          <p><strong>Date de Délivrance:</strong> {new Date().toLocaleDateString()}</p>
-          <div style={{ marginTop: 20 }}>
-            <QRCode value={currentClient.rfid} size={128} level="H" />
-          </div>
+      <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ width: '50%', padding: '20px' }}>
+          <Card className="carte-preview" hoverable style={{ ...cardStyle }}>
+            <div className="card-content" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <QRCode value={currentClient.rfid} size={150} level="H" style={{ marginLeft: '20px', marginTop: '20px' }} />
+                <div style={{ textAlign: 'right', fontFamily: 'Arial, sans-serif', fontWeight: 'bold', fontSize: '3rem', color: '#3b5998', marginRight: '20px' }}>
+                  Trans'urb
+                </div>
+              </div>
+              <div style={{ textAlign: 'left', marginTop: '20px', marginLeft: '20px' }}>
+                <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '10px 0' }}>Nom: {currentClient.nom}</p>
+                <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '10px 0' }}>Prénom: {currentClient.prenom}</p>
+              </div>
+              <div style={{ textAlign: 'left', marginTop: '10px', marginLeft: '20px' }}>
+                
+              </div>
+              <div style={{ backgroundColor: '', padding: '15px 0', textAlign: 'center', color: '#FFF', fontSize: '1.5rem', borderRadius: '4px', marginTop: '10px', marginRight: '20px' }}>
+               
+              </div>
+            </div>
+          </Card>
         </div>
-      </Card>
+
+        <div style={{ width: '50%', padding: '20px' }}>
+          <Card className="carte-preview" hoverable style={{ ...cardStyle, backgroundColor: '#007BFF' }}>
+            <div className="card-content" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#FFF' }}>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '10px 0' }}>Prénom: Chamberlin dior</p>
+              <p style={{ fontSize: '1.5rem', margin: '10px 0' }}>Date de Création: 8/22/2024</p>
+              <div style={{ backgroundColor: '#28a745', padding: '15px 0', textAlign: 'center', color: '#FFF', fontSize: '1.5rem', borderRadius: '4px', marginTop: '20px', width: '100%' }}>
+                CARTE DE TRANSPORT RECHARGEABLE
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
     );
   };
 
@@ -313,10 +348,10 @@ const Home = () => {
         <Button type="primary" onClick={() => {/* handle client management */}} style={{ marginLeft: 8 }}>
           Gestion des Clients
         </Button>
-        <Button type="primary" onClick={() => {/* handle terminal management */}} style={{ marginLeft: 8 }}>
+        <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginLeft: 8 }}>
           Gestion des Terminaux
         </Button>
-        <Button type="primary" onClick={() => {/* handle user management */}} style={{ marginLeft: 8 }}>
+        <Button type="primary" onClick={() => navigate('/users')} style={{ marginLeft: 8 }}>
           Gestion des Utilisateurs
         </Button>
         <Button type="primary" onClick={() => {/* handle card management */}} style={{ marginLeft: 8 }}>
@@ -333,18 +368,32 @@ const Home = () => {
       <div className="table-container">
         {loading ? <Spin size="large" /> : <Table dataSource={clients} columns={columns} rowKey="id" />}
       </div>
-      <Modal title="Créer un Client" visible={isModalVisible} onCancel={() => setIsModalVisible(false)} footer={null}>
-        <Form onFinish={handleCreateClient}>
+      <Modal 
+        title="Créer un Client" 
+        visible={isModalVisible} 
+        onCancel={() => setIsModalVisible(false)} 
+        footer={null}
+        width="100vw" 
+        bodyStyle={{ height: '100vh', padding: '50px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Form onFinish={handleCreateClient} style={{ width: '100%', maxWidth: '600px' }}>
           <Form.Item name="nom" label="Nom" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="prenom" label="Prénom" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="quartier" label="Quartier" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="ville" label="Ville" rules={[{ required: true }]}><Input /></Form.Item>
-          <Button type="primary" htmlType="submit">Créer</Button>
+          <Button type="primary" htmlType="submit" block>Créer</Button>
         </Form>
       </Modal>
-      <Modal title="Aperçu de la Carte" visible={isPreviewVisible} onCancel={() => setIsPreviewVisible(false)} footer={null}>
+      <Modal 
+        title="Aperçu de la Carte" 
+        visible={isPreviewVisible} 
+        onCancel={() => setIsPreviewVisible(false)} 
+        footer={null}
+        width="100vw" 
+        bodyStyle={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
         {renderCardPreview()}
-        <Button type="primary" onClick={() => window.print()}>Imprimer</Button>
+        <Button type="primary" onClick={() => window.print()} style={{ marginTop: '20px', display: 'block', margin: '0 auto' }}>Imprimer</Button>
       </Modal>
       <Modal title="Attribuer un RFID" visible={isRFIDModalVisible} onCancel={() => setIsRFIDModalVisible(false)} onOk={() => {
         handleAssignRFID(document.getElementById('rfid-input').value);

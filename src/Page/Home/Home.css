@@ -95,6 +95,7 @@
   font-weight: bold;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
 
 .carte-preview:hover {
@@ -102,7 +103,27 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
+.carte-preview h3, .carte-preview p {
+  margin: 0;
+  padding: 5px 0;
+}
+
+.carte-preview h3 {
+  font-size: 1.5rem;
+}
+
+.carte-preview p {
+  font-size: 1.2rem;
+}
+
 /* TRANS'URB styling */
+.transurb-logo {
+  width: 120px;
+  position: absolute;
+  top: 10px;
+  left: 20px;
+}
+
 .transurb-text {
   position: absolute;
   top: 10px;
@@ -125,6 +146,33 @@
     box-shadow: none;
     background: white;
     color: black;
+  }
+
+  .ant-modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .carte-preview {
+    page-break-inside: avoid; /* Évite les sauts de page au milieu des cartes */
+    break-inside: avoid;
+    margin-bottom: 100px; /* Ajoute un espace entre les cartes pour l'impression */
+    width: 100%; /* Prend toute la largeur disponible pour l'impression */
+    max-width: 640px; /* Conserve la taille maximale de la carte */
+  }
+
+  .card-content {
+    display: block; /* Assurez-vous que chaque carte est affichée en bloc */
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .ant-modal-body {
+    height: 100vh; /* Utilise toute la hauteur pour l'impression */
+    justify-content: space-between; /* Distribue l'espace pour placer une carte en haut et l'autre en bas */
   }
 }
 
@@ -173,17 +221,13 @@
 }
 
 /* Effets visuels supplémentaires */
-.carte-preview h3, .carte-preview p {
-  margin: 0;
-  padding: 5px 0;
+.ant-table-thead > tr > th, .card-title {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
-.carte-preview h3 {
-  font-size: 1.5rem;
-}
-
-.carte-preview p {
-  font-size: 1.2rem;
+/* Ajouter des effets de survol futuristes */
+.carte-preview:hover {
+  background: linear-gradient(135deg, var(--vivid-blue), var(--vivid-green));
 }
 
 /* Style des messages d'erreur et de succès */
@@ -200,14 +244,4 @@
 .ant-message-error {
   background-color: var(--vivid-red);
   color: white;
-}
-
-/* Ajout d'un effet de néon futuriste pour les titres */
-.ant-table-thead > tr > th, .card-title {
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
-}
-
-/* Ajouter des effets de survol futuristes */
-.carte-preview:hover {
-  background: linear-gradient(135deg, var(--vivid-blue), var(--vivid-green));
 }
