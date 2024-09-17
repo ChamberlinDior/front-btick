@@ -24,6 +24,7 @@ const UserManager = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({});
+  const [form] = Form.useForm();  // Hook for form reset
   
   const navigate = useNavigate();
 
@@ -50,6 +51,7 @@ const UserManager = () => {
       const userWithUniqueNumber = { ...values, uniqueUserNumber: newUniqueUserNumber };
       const response = await axiosInstance.post('/utilisateurs', userWithUniqueNumber);
       setUsers([...users, response.data]);
+      form.resetFields();  // Reset the form fields after successful submission
       setIsModalVisible(false);
       setLoading(false);
       message.success("Utilisateur créé avec succès !");
@@ -122,6 +124,7 @@ const UserManager = () => {
       dataIndex: 'nom', 
       key: 'nom',
       ...getColumnSearchProps('nom'),
+      render: (text) => <span style={{ color: '#108ee9', fontWeight: 'bold' }}>{text}</span>,
       onCell: (record) => ({
         onClick: () => handleRowClick(record),
       }),
@@ -131,6 +134,7 @@ const UserManager = () => {
       dataIndex: 'prenom', 
       key: 'prenom',
       ...getColumnSearchProps('prenom'),
+      render: (text) => <span style={{ color: '#ff6f61', fontWeight: 'bold' }}>{text}</span>,
       onCell: (record) => ({
         onClick: () => handleRowClick(record),
       }),
@@ -165,7 +169,7 @@ const UserManager = () => {
           Créer un Utilisateur
         </Button>
         <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginLeft: 8 }}>
-          Gestion des Terminaux
+          Gestion des Bus
         </Button>
         <Button type="primary" onClick={() => navigate('/users')} style={{ marginLeft: 8 }}>
           Gestion des Utilisateurs
@@ -185,7 +189,7 @@ const UserManager = () => {
         <RangePicker onChange={(dates, dateStrings) => setFilter({ dates: dateStrings })} style={{ marginLeft: 8 }} />
       </div>
       <div className="table-container">
-        {loading ? <Spin size="large" /> : <Table dataSource={users} columns={columns} rowKey="id" />}
+        {loading ? <Spin size="large" /> : <Table dataSource={users} columns={columns} rowKey="id" bordered pagination={{ pageSize: 10 }} size="middle" style={{ backgroundColor: '#f0f2f5', borderRadius: '10px' }} />}
       </div>
       <Modal
         title="Créer un Utilisateur"
@@ -193,7 +197,7 @@ const UserManager = () => {
         onCancel={() => setIsModalVisible(false)}
         footer={null}
       >
-        <Form onFinish={handleCreateUser}>
+        <Form form={form} onFinish={handleCreateUser}>
           <Form.Item name="nom" label="Nom" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="prenom" label="Prénom" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="role" label="Rôle" rules={[{ required: true }]}>

@@ -3,7 +3,10 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import Home from './Page/Home/Home';
 import UserManager from './Page/UserManager/UserManager';
 import Login from './Page/Login/Login';
-import BusManager from './Page/BusManager/BusManager'; // Import du BusManager
+import BusManager from './Page/BusManager/BusManager';
+import TransactionPage from './Page/Transaction/TransactionPage';
+import CarteAttachePage from './Page/CarteAttache/CarteAttachePage';
+import GestionDeTransaction from './Page/GestionDeTransaction/GestionDeTransaction';  // Import de la nouvelle page
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,6 +20,36 @@ function App() {
           element={
             isAuthenticated ? (
               <Home />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            isAuthenticated ? (
+              <TransactionPage />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/gestion-transactions"
+          element={
+            isAuthenticated ? (
+              <GestionDeTransaction />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/carte-attache/:clientId"
+          element={
+            isAuthenticated ? (
+              <CarteAttachePage />
             ) : (
               <Navigate to="/login" />
             )

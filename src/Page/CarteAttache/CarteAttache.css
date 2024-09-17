@@ -1,0 +1,28 @@
+@media print {
+    .print-section {
+      display: flex; /* Permet de mettre les cartes côte à côte */
+      justify-content: center; /* Centrer les cartes horizontalement */
+      page-break-after: always; /* Assure que chaque section de cartes soit sur une page différente */
+    }
+  
+    .card {
+      display: inline-block;
+      margin: 10px;
+    }
+  
+    .card img {
+      display: block;
+      width: 340px; /* Largeur d'une carte bancaire */
+      height: 214px; /* Hauteur d'une carte bancaire */
+      border-radius: 15px; /* Coins arrondis */
+      border: 1px solid black; /* Bordure noire */
+    }
+  
+    /* Supprimer les marges et ajuster les éléments pour l'impression */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+  }
+  
