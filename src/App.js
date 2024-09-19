@@ -5,8 +5,8 @@ import UserManager from './Page/UserManager/UserManager';
 import Login from './Page/Login/Login';
 import BusManager from './Page/BusManager/BusManager';
 import TransactionPage from './Page/Transaction/TransactionPage';
-import GestionDeTransaction from './Page/GestionDeTransaction/GestionDeTransaction'; // Import de la page GestionDeTransaction
-import CarteAttachePage from './Page/CarteAttache/CarteAttachePage'; // Import de la page Carte Attachée
+import CarteAttachePage from './Page/CarteAttache/CarteAttachePage';
+import GestionDeTransaction from './Page/GestionDeTransaction/GestionDeTransaction';  // Import de la nouvelle page
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,63 +17,27 @@ function App() {
         <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route
           path="/home"
-          element={
-            isAuthenticated ? (
-              <Home />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
         />
         <Route
           path="/transactions"
-          element={
-            isAuthenticated ? (
-              <TransactionPage />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isAuthenticated ? <TransactionPage /> : <Navigate to="/login" />}
         />
         <Route
           path="/gestion-transactions"
-          element={
-            isAuthenticated ? (
-              <GestionDeTransaction />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isAuthenticated ? <GestionDeTransaction /> : <Navigate to="/login" />}
         />
         <Route
           path="/carte-attache/:clientId"
-          element={
-            isAuthenticated ? (
-              <CarteAttachePage />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isAuthenticated ? <CarteAttachePage /> : <Navigate to="/login" />}
         />
         <Route
           path="/users"
-          element={
-            isAuthenticated ? (
-              <UserManager />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isAuthenticated ? <UserManager /> : <Navigate to="/login" />}
         />
         <Route
           path="/bus-manager"
-          element={
-            isAuthenticated ? (
-              <BusManager />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isAuthenticated ? <BusManager /> : <Navigate to="/login" />}
         />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

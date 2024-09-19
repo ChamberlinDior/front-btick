@@ -169,7 +169,7 @@ const UserManager = () => {
           Créer un Utilisateur
         </Button>
         <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginLeft: 8 }}>
-          Gestion des Bus
+          Gestion des Trajets
         </Button>
         <Button type="primary" onClick={() => navigate('/users')} style={{ marginLeft: 8 }}>
           Gestion des Utilisateurs
@@ -180,8 +180,8 @@ const UserManager = () => {
         <Button type="primary" onClick={() => {/* handle card management */}} style={{ marginLeft: 8 }}>
           Gestion des Cartes
         </Button>
-        <Button type="primary" onClick={() => {/* handle transaction management */}} style={{ marginLeft: 8 }}>
-          Gestion des Transactions
+        <Button type="primary" onClick={() => navigate('/gestion-transactions')} style={{ marginLeft: 8 }}>
+          Gestion de Transactions
         </Button>
         <Button icon={<ReloadOutlined />} type="default" onClick={handleRefresh} style={{ marginLeft: 8 }}>
           Rafraîchir

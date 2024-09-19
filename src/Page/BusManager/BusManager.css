@@ -1,42 +1,87 @@
 .busmanager-container {
-    padding: 20px;
-  }
-  
-  .top-bar {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-  }
-  
-  .table-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .ant-table-thead > tr > th {
-    background-color: #f0f2f5;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .ant-table-tbody > tr > td {
-    text-align: center;
-  }
-  
-  .ant-modal-title {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .ant-btn-primary {
-    background-color: #1890ff;
-    border-color: #1890ff;
-  }
-  
-  .ant-btn-primary:hover {
-    background-color: #40a9ff;
-    border-color: #40a9ff;
-  }
-  
+  padding: 20px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.table-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ant-table-thead > tr > th {
+  background-color: #f0f2f5;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ant-table-tbody > tr > td {
+  text-align: center;
+}
+
+.ant-modal-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.ant-btn-primary {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+.ant-btn-primary:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* Battery level styles */
+.battery-level {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.battery-bar {
+  width: 10px;
+  height: 50px;
+  margin-bottom: 5px;
+  transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+/* Green battery bar for high battery levels */
+.battery-bar.green {
+  background-color: green;
+}
+
+/* Orange battery bar for medium battery levels */
+.battery-bar.orange {
+  background-color: orange;
+}
+
+/* Red battery bar for low battery levels */
+.battery-bar.red {
+  background-color: red;
+}
+
+/* Style for table cell containing the battery level */
+.battery-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.battery-percentage {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* Optional styling for table rows */
+.ant-table-tbody > tr:hover {
+  background-color: #f5f5f5;
+}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Modal, Input, Table, message, Form, DatePicker, Popconfirm } from 'antd';
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBatteryThreeQuarters, faBatteryHalf, faBatteryQuarter, faBatteryFull, faBatteryEmpty, faBolt } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../../axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import './BusManager.css';
@@ -22,14 +24,11 @@ const BusManager = () => {
 
   const navigate = useNavigate();
 
-  // Fetch buses data from backend
   const fetchBuses = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get('/buses', { params: filter });
       const busData = response.data;
-
-      console.log("Data received from API: ", busData); // Log data received from backend
 
       const macToTerminalMap = {};
       let terminalCounter = 1;
@@ -74,7 +73,6 @@ const BusManager = () => {
     fetchBuses();
   }, [fetchBuses]);
 
-  // Handle bus creation
   const handleCreateBus = async (values) => {
     try {
       const response = await axiosInstance.post('/buses/create', values);
@@ -165,6 +163,40 @@ const BusManager = () => {
     render: (text) => <span style={{ color }}>{text}</span>,
   });
 
+  const renderBatteryIcon = (niveauBatterie, isCharging) => {
+    let icon = faBatteryFull;
+    let color = 'green';
+
+    if (niveauBatterie <= 25) {
+      icon = faBatteryQuarter;
+      color = 'red';
+    } else if (niveauBatterie <= 50) {
+      icon = faBatteryHalf;
+      color = 'orange';
+    } else if (niveauBatterie <= 75) {
+      icon = faBatteryThreeQuarters;
+      color = 'yellow';
+    }
+
+    return (
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+        <FontAwesomeIcon icon={icon} style={{ color }} />
+        {isCharging && (
+          <FontAwesomeIcon
+            icon={faBolt}
+            style={{
+              color: 'white',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+
   const columns = [
     {
       title: 'Modèle',
@@ -225,6 +257,19 @@ const BusManager = () => {
       ...getColumnSearchProps('terminalName', '#f50'),
     },
     {
+      title: 'Niveau de Batterie',
+      dataIndex: 'niveauBatterie',
+      key: 'niveauBatterie',
+      render: (niveauBatterie, record) =>
+        niveauBatterie !== null ? (
+          <div>
+            {renderBatteryIcon(niveauBatterie, record.isCharging)} <span>{niveauBatterie}%</span>
+          </div>
+        ) : (
+          'N/A'
+        ),
+    },
+    {
       title: 'Voir Historique',
       key: 'history',
       render: (_, bus) => (
@@ -279,11 +324,14 @@ const BusManager = () => {
         <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsCreationModalVisible(true)}>
           Créer un Bus
         </Button>
-        <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginLeft: 8 }}>
-          Gestion des Bus
+        <Button type="primary" onClick={() => navigate('/gestion-transactions')} style={{ marginLeft: 8 }}>
+          Gestion des Transactions
         </Button>
         <Button type="primary" onClick={() => navigate('/users')} style={{ marginLeft: 8 }}>
           Gestion des Utilisateurs
+        </Button>
+        <Button type="primary" onClick={() => navigate('/')} style={{ marginLeft: 8 }}>
+          Gestion des Clients
         </Button>
         <Button icon={<ReloadOutlined />} type="default" onClick={fetchBuses} style={{ marginLeft: 8 }}>
           Rafraîchir
