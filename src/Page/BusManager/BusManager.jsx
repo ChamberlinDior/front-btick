@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Modal, Input, Table, message, Form, DatePicker, Popconfirm } from 'antd';
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBatteryThreeQuarters, faBatteryHalf, faBatteryQuarter, faBatteryFull, faBatteryEmpty, faBolt } from '@fortawesome/free-solid-svg-icons';
+import { faBatteryThreeQuarters, faBatteryHalf, faBatteryQuarter, faBatteryFull, faBolt } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../../axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import './BusManager.css';

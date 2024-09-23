@@ -10,6 +10,7 @@ const TransactionPage = () => {
   const [loading, setLoading] = useState(false);
   const [forfaitHistory, setForfaitHistory] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [terminals, setTerminals] = useState([]); // State for terminals
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,14 +31,34 @@ const TransactionPage = () => {
     }
   }, [clientId]);
 
+  // Function to fetch terminals and assign sequential names
+  const fetchTerminals = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/terminals'); // Fetch terminal data
+      const terminalList = response.data;
+
+      // Assign names as Terminal 1, Terminal 2, etc.
+      const updatedTerminals = terminalList.map((terminal, index) => ({
+        ...terminal,
+        displayName: `Terminal ${index + 1}`
+      }));
+
+      setTerminals(updatedTerminals);
+    } catch (error) {
+      message.error('Erreur lors de la récupération des terminaux.');
+    }
+  }, []);
+
   useEffect(() => {
     if (clientId) {
       fetchClientInfo(); // Load client info
+      fetchTerminals();  // Load terminal info
     }
-  }, [clientId, fetchClientInfo]);
+  }, [clientId, fetchClientInfo, fetchTerminals]);
 
   const handleRefresh = () => {
     fetchClientInfo();
+    fetchTerminals();
     message.success('Données mises à jour avec succès!');
   };
 
@@ -174,6 +195,17 @@ const TransactionPage = () => {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="terminal-info-section">
+        <h2>Liste des Terminaux</h2>
+        <div className="terminal-list">
+          {terminals.map((terminal) => (
+            <div key={terminal.androidId}>
+              <p>{terminal.displayName} - ID Masqué</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <Modal
