@@ -14,7 +14,7 @@ const GestionDeTransaction = () => {
   // Récupérer toutes les vérifications de forfaits depuis le backend
   useEffect(() => {
     setLoading(true);
-    axios.get('http://localhost:8080/api/forfait-verifications')
+    axios.get('http://51.178.42.116:8089/api/forfait-verifications')
       .then(response => {
         setForfaits(response.data);
         setLoading(false);
@@ -30,7 +30,7 @@ const GestionDeTransaction = () => {
   // Rafraîchir les données de vérification de forfaits
   const handleRefresh = () => {
     setLoading(true);
-    axios.get('http://localhost:8080/api/forfait-verifications')
+    axios.get('http://51.178.42.116:8089/api/forfait-verifications')
       .then(response => {
         setForfaits(response.data);
         setLoading(false);
