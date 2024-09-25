@@ -24,8 +24,8 @@ const UserManager = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({});
-  const [form] = Form.useForm();  // Hook for form reset
-  
+  const [form] = Form.useForm(); // Hook for form reset
+
   const navigate = useNavigate();
 
   const fetchUsers = useCallback(async () => {
@@ -51,7 +51,7 @@ const UserManager = () => {
       const userWithUniqueNumber = { ...values, uniqueUserNumber: newUniqueUserNumber };
       const response = await axiosInstance.post('/utilisateurs', userWithUniqueNumber);
       setUsers([...users, response.data]);
-      form.resetFields();  // Reset the form fields after successful submission
+      form.resetFields(); // Reset the form fields after successful submission
       setIsModalVisible(false);
       setLoading(false);
       message.success("Utilisateur créé avec succès !");
@@ -110,18 +110,18 @@ const UserManager = () => {
         onClick: () => handleRowClick(record),
       }),
     },
-    { 
-      title: 'Numéro Utilisateur', 
-      dataIndex: 'uniqueUserNumber', 
+    {
+      title: 'Numéro Utilisateur',
+      dataIndex: 'uniqueUserNumber',
       key: 'uniqueUserNumber',
       ...getColumnSearchProps('uniqueUserNumber'),
       onCell: (record) => ({
         onClick: () => handleRowClick(record),
       }),
     },
-    { 
-      title: 'Nom', 
-      dataIndex: 'nom', 
+    {
+      title: 'Nom',
+      dataIndex: 'nom',
       key: 'nom',
       ...getColumnSearchProps('nom'),
       render: (text) => <span style={{ color: '#108ee9', fontWeight: 'bold' }}>{text}</span>,
@@ -129,9 +129,9 @@ const UserManager = () => {
         onClick: () => handleRowClick(record),
       }),
     },
-    { 
-      title: 'Prénom', 
-      dataIndex: 'prenom', 
+    {
+      title: 'Prénom',
+      dataIndex: 'prenom',
       key: 'prenom',
       ...getColumnSearchProps('prenom'),
       render: (text) => <span style={{ color: '#ff6f61', fontWeight: 'bold' }}>{text}</span>,
@@ -139,9 +139,9 @@ const UserManager = () => {
         onClick: () => handleRowClick(record),
       }),
     },
-    { 
-      title: 'Rôle', 
-      dataIndex: 'role', 
+    {
+      title: 'Rôle',
+      dataIndex: 'role',
       key: 'role',
       render: (text) => <Tag color="blue">{text}</Tag>,
       ...getColumnSearchProps('role'),
