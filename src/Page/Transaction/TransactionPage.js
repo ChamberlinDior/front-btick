@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, message, Spin, Divider, Modal, Table } from 'antd';
+import { Button, message, Spin, Table } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
-import axiosInstance from '../../axiosConfig'; 
+import axiosInstance from '../../axiosConfig';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './TransactionPage.css';  // Corrected CSS file import
+import './TransactionPage.css';
 
 const TransactionPage = () => {
   const [clientInfo, setClientInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [forfaitHistory, setForfaitHistory] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [terminals, setTerminals] = useState([]); // State for terminals
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,7 +20,7 @@ const TransactionPage = () => {
   const fetchClientInfo = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/clients/${clientId}`); // Fetch client data
+      const response = await axiosInstance.get(`/clients/${clientId}`);
       setClientInfo(response.data);
       setLoading(false);
     } catch (error) {
@@ -31,45 +29,13 @@ const TransactionPage = () => {
     }
   }, [clientId]);
 
-  // Function to fetch terminals and assign sequential names
-  const fetchTerminals = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get('/terminals'); // Fetch terminal data
-      const terminalList = response.data;
-
-      // Assign names as Terminal 1, Terminal 2, etc.
-      const updatedTerminals = terminalList.map((terminal, index) => ({
-        ...terminal,
-        displayName: `Terminal ${index + 1}`
-      }));
-
-      setTerminals(updatedTerminals);
-    } catch (error) {
-      message.error('Erreur lors de la récupération des terminaux.');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (clientId) {
-      fetchClientInfo(); // Load client info
-      fetchTerminals();  // Load terminal info
-    }
-  }, [clientId, fetchClientInfo, fetchTerminals]);
-
-  const handleRefresh = () => {
-    fetchClientInfo();
-    fetchTerminals();
-    message.success('Données mises à jour avec succès!');
-  };
-
   // Function to fetch forfait history based on clientId
-  const handleShowHistory = async () => {
+  const fetchForfaitHistory = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/forfaits/historique/${clientId}`); // Fetch forfait history
+      const response = await axiosInstance.get(`/forfaits/historique/${clientId}`);
       if (response.data && Array.isArray(response.data)) {
         setForfaitHistory(response.data);
-        setIsModalVisible(true);
       } else {
         message.warning('Aucun forfait activé trouvé pour ce client.');
       }
@@ -78,19 +44,14 @@ const TransactionPage = () => {
       message.error('Erreur lors de la récupération de l\'historique des forfaits.');
       setLoading(false);
     }
-  };
+  }, [clientId]);
 
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
-
-  // Format dates for display
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    if (isNaN(date)) return 'N/A'; // Handle invalid date
-    return date.toLocaleDateString('fr-FR');
-  };
+  useEffect(() => {
+    if (clientId) {
+      fetchClientInfo();
+      fetchForfaitHistory();  // Fetch forfait history on page load
+    }
+  }, [clientId, fetchClientInfo, fetchForfaitHistory]);
 
   const columns = [
     {
@@ -114,115 +75,44 @@ const TransactionPage = () => {
       title: 'Date d\'activation',
       dataIndex: 'dateActivation',
       key: 'dateActivation',
-      render: (text) => formatDate(text),
     },
     {
       title: 'Date d\'expiration',
       dataIndex: 'dateExpiration',
       key: 'dateExpiration',
-      render: (text) => formatDate(text),
     },
     {
-      title: 'ID Client',
-      dataIndex: 'clientId',
-      key: 'clientId',
+      title: 'Numéro Client', // Remplacement de 'ID Client' par 'Numéro Client'
+      dataIndex: 'numClient',
+      key: 'numClient',
+      render: () => clientInfo.numClient || 'N/A', // On affiche le numéro unique du client
     }
   ];
 
   return (
-    <div className="client-profile-container">
+    <div className="transaction-page-container">
       <div className="top-bar">
         <Button
-          icon={<ReloadOutlined />}
-          type="default"
-          onClick={handleRefresh}
-          className="refresh-btn"
-        >
-          Rafraîchir
-        </Button>
-        <Button
           type="primary"
-          onClick={() => navigate('/home')}
+          onClick={() => navigate(-1)}  // Retourner à la page précédente
           className="back-btn"
         >
-          Retour à l'Accueil
+          Retour
         </Button>
       </div>
 
-      <div className="client-info-section">
-        <h1>Informations du Client</h1>
-        {loading ? (
-          <Spin size="large" />
-        ) : (
-          <div>
-            <div className="client-details-grid">
-              <div className="profile-left">
-                <div className="client-avatar">
-                  <div className="initial-avatar">
-                    {clientInfo.nom && clientInfo.nom.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-                <div className="client-main-info">
-                  <p className="title">Nom:</p>
-                  <p>{clientInfo.nom}</p>
-                  <p className="title">Prénom:</p>
-                  <p>{clientInfo.prenom}</p>
-                </div>
-              </div>
+      <h1>Historique des Transactions du Client</h1>
 
-              <Divider className="green-divider" />
-
-              <div className="profile-right">
-                <p className="title">Numéro du Client:</p>
-                <p>{clientInfo.numClient}</p>
-                <p className="title">Quartier:</p>
-                <p>{clientInfo.quartier}</p>
-                <p className="title">Ville:</p>
-                <p>{clientInfo.ville}</p>
-              </div>
-            </div>
-
-            <div className="button-section">
-              <Button type="primary" className="action-btn" onClick={() => navigate(`/carte-attache/${clientId}`)}>
-                Carte Attachée
-              </Button>
-              <Button type="default" className="action-btn" onClick={() => navigate(`/nouvelle-carte/${clientId}`)}>
-                Nouvelle Carte
-              </Button>
-              <Button type="default" className="action-btn" onClick={handleShowHistory}>
-                Historique des Forfaits
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="terminal-info-section">
-        <h2>Liste des Terminaux</h2>
-        <div className="terminal-list">
-          {terminals.map((terminal) => (
-            <div key={terminal.androidId}>
-              <p>{terminal.displayName} - ID Masqué</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Modal
-        title="Historique des Forfaits Activés"
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={null}
-        width="80vw"
-      >
+      {loading ? (
+        <Spin size="large" />
+      ) : (
         <Table
           dataSource={forfaitHistory}
           columns={columns}
           rowKey="id"
           pagination={{ pageSize: 10 }}
-          scroll={{ y: 400 }}
         />
-      </Modal>
+      )}
     </div>
   );
 };

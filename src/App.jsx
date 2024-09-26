@@ -21,7 +21,7 @@ function App() {
             isAuthenticated ? (
               <Home />
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/home" />
             )
           }
         />

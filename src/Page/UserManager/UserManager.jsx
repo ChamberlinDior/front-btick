@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Modal, Form, Input, Table, message, Select, Avatar, Tag, DatePicker, Spin } from 'antd';
-import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined, EditOutlined, EyeOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'; 
 import axiosInstance from '../../axiosConfig';
 import { useNavigate } from 'react-router-dom';
-import './UserManager.css';
+import './UserManager.css'; 
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -18,14 +18,43 @@ const getColor = (name) => {
   return colors[charCode % colors.length];
 };
 
+const getColumnSearchProps = (dataIndex, searchInput, setSearchInput, handleSearch, handleReset) => ({
+  filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+    <div style={{ padding: 8 }}>
+      <Input
+        ref={searchInput}
+        placeholder={`Rechercher ${dataIndex}`}
+        value={selectedKeys[0]}
+        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+        onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+        style={{ marginBottom: 8, display: 'block' }}
+      />
+      <Button
+        type="primary"
+        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+        icon={<SearchOutlined />}
+        size="small"
+        style={{ width: 90, marginRight: 8 }}
+      >
+        Rechercher
+      </Button>
+      <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+        Réinitialiser
+      </Button>
+    </div>
+  ),
+  filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+  onFilter: (value, record) => record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
+});
+
 const UserManager = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [users, setUsers] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({});
-  const [form] = Form.useForm(); // Hook for form reset
-
+  const [form] = Form.useForm();
+  const [searchInput, setSearchInput] = useState(null);
+  
   const navigate = useNavigate();
 
   const fetchUsers = useCallback(async () => {
@@ -51,7 +80,7 @@ const UserManager = () => {
       const userWithUniqueNumber = { ...values, uniqueUserNumber: newUniqueUserNumber };
       const response = await axiosInstance.post('/utilisateurs', userWithUniqueNumber);
       setUsers([...users, response.data]);
-      form.resetFields(); // Reset the form fields after successful submission
+      form.resetFields();
       setIsModalVisible(false);
       setLoading(false);
       message.success("Utilisateur créé avec succès !");
@@ -61,40 +90,28 @@ const UserManager = () => {
     }
   };
 
-  const handleRowClick = (record) => {
-    setCurrentUser(record);
+  const handleDeleteUser = async (userId) => {
+    setLoading(true);
+    try {
+      await axiosInstance.delete(`/utilisateurs/${userId}`);
+      setUsers(users.filter(user => user.id !== userId));
+      setLoading(false);
+      message.success("Utilisateur supprimé avec succès !");
+    } catch (error) {
+      message.error("Erreur lors de la suppression de l'utilisateur.");
+      setLoading(false);
+    }
   };
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          placeholder={`Rechercher ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => confirm()}
-          style={{ marginBottom: 8, display: 'block' }}
-        />
-        <Button
-          type="primary"
-          onClick={() => confirm()}
-          icon={<SearchOutlined />}
-          size="small"
-          style={{ width: 90, marginRight: 8 }}
-        >
-          Rechercher
-        </Button>
-        <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
-          Réinitialiser
-        </Button>
-      </div>
-    ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-    onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
-  });
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchInput(selectedKeys[0]);
+  };
+
+  const handleReset = clearFilters => {
+    clearFilters();
+    setSearchInput('');
+  };
 
   const columns = [
     {
@@ -106,54 +123,68 @@ const UserManager = () => {
           {record.nom.charAt(0).toUpperCase()}
         </Avatar>
       ),
-      onCell: (record) => ({
-        onClick: () => handleRowClick(record),
-      }),
     },
     {
       title: 'Numéro Utilisateur',
       dataIndex: 'uniqueUserNumber',
       key: 'uniqueUserNumber',
-      ...getColumnSearchProps('uniqueUserNumber'),
-      onCell: (record) => ({
-        onClick: () => handleRowClick(record),
-      }),
+      ...getColumnSearchProps('uniqueUserNumber', searchInput, setSearchInput, handleSearch, handleReset),
     },
     {
       title: 'Nom',
       dataIndex: 'nom',
       key: 'nom',
-      ...getColumnSearchProps('nom'),
       render: (text) => <span style={{ color: '#108ee9', fontWeight: 'bold' }}>{text}</span>,
-      onCell: (record) => ({
-        onClick: () => handleRowClick(record),
-      }),
+      ...getColumnSearchProps('nom', searchInput, setSearchInput, handleSearch, handleReset),
     },
     {
       title: 'Prénom',
       dataIndex: 'prenom',
       key: 'prenom',
-      ...getColumnSearchProps('prenom'),
       render: (text) => <span style={{ color: '#ff6f61', fontWeight: 'bold' }}>{text}</span>,
-      onCell: (record) => ({
-        onClick: () => handleRowClick(record),
-      }),
+      ...getColumnSearchProps('prenom', searchInput, setSearchInput, handleSearch, handleReset),
     },
     {
       title: 'Rôle',
       dataIndex: 'role',
       key: 'role',
       render: (text) => <Tag color="blue">{text}</Tag>,
-      ...getColumnSearchProps('role'),
-      onCell: (record) => ({
-        onClick: () => handleRowClick(record),
-      }),
+      ...getColumnSearchProps('role', searchInput, setSearchInput, handleSearch, handleReset),
     },
     {
       title: 'Date de Création',
       dataIndex: 'dateCreation',
       key: 'dateCreation',
       render: (text) => new Date(text).toLocaleDateString('fr-FR'),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (text, record) => (
+        <div className="action-buttons">
+          <Button 
+            icon={<EyeOutlined />} 
+            onClick={() => navigate(`/users/${record.id}`)} 
+            className="details-button"
+          >
+            Détails
+          </Button>
+          <Button 
+            icon={<EditOutlined />} 
+            onClick={() => setIsModalVisible(true)} 
+            className="edit-button"
+          >
+            Éditer
+          </Button>
+          <Button 
+            icon={<DeleteOutlined />} 
+            onClick={() => handleDeleteUser(record.id)} 
+            className="delete-button"
+          >
+            Supprimer
+          </Button>
+        </div>
+      ),
     },
   ];
 
@@ -168,6 +199,9 @@ const UserManager = () => {
         <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsModalVisible(true)}>
           Créer un Utilisateur
         </Button>
+        <Button icon={<ReloadOutlined />} type="default" onClick={handleRefresh} style={{ marginLeft: 8 }}>
+          Rafraîchir
+        </Button>
         <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginLeft: 8 }}>
           Gestion des Trajets
         </Button>
@@ -177,20 +211,28 @@ const UserManager = () => {
         <Button type="primary" onClick={() => navigate('/')} style={{ marginLeft: 8 }}>
           Gestion des Clients
         </Button>
-        <Button type="primary" onClick={() => {/* handle card management */}} style={{ marginLeft: 8 }}>
-          Gestion des Cartes
-        </Button>
         <Button type="primary" onClick={() => navigate('/gestion-transactions')} style={{ marginLeft: 8 }}>
           Gestion de Transactions
         </Button>
-        <Button icon={<ReloadOutlined />} type="default" onClick={handleRefresh} style={{ marginLeft: 8 }}>
-          Rafraîchir
-        </Button>
         <RangePicker onChange={(dates, dateStrings) => setFilter({ dates: dateStrings })} style={{ marginLeft: 8 }} />
       </div>
+
       <div className="table-container">
-        {loading ? <Spin size="large" /> : <Table dataSource={users} columns={columns} rowKey="id" bordered pagination={{ pageSize: 10 }} size="middle" style={{ backgroundColor: '#f0f2f5', borderRadius: '10px' }} />}
+        {loading ? (
+          <Spin size="large" />
+        ) : (
+          <Table
+            dataSource={users}
+            columns={columns}
+            rowKey="id"
+            bordered
+            pagination={{ pageSize: 10 }}
+            size="middle"
+            style={{ backgroundColor: '#2563eb', borderRadius: '10px', color: '#fff' }} 
+          />
+        )}
       </div>
+
       <Modal
         title="Créer un Utilisateur"
         visible={isModalVisible}
@@ -207,9 +249,6 @@ const UserManager = () => {
               <Option value="CHAUFFEUR">CHAUFFEUR</Option>
               <Option value="CONTROLEUR">CONTROLEUR</Option>
               <Option value="CAISSIER">CAISSIER</Option>
-              <Option value="SUPERVISEUR">SUPERVISEUR</Option>
-              <Option value="TECHNICIEN">TECHNICIEN</Option>
-              <Option value="AGENT_DE_BILLETERIE">AGENT DE BILLETERIE</Option>
             </Select>
           </Form.Item>
           <Button type="primary" htmlType="submit">Créer</Button>

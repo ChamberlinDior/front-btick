@@ -1,0 +1,84 @@
+/* Conteneur principal */
+.profil-container {
+    padding: 20px;
+    background-color: #1e3a8a; /* Fond bleu foncé */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+  }
+  
+  /* Barre de navigation */
+  .navbar {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: #1e3a8a; /* Fond bleu foncé */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .navbar button {
+    background-color: #3b82f6; /* Couleur des boutons */
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .navbar button:hover {
+    background-color: #2563eb; /* Couleur au survol */
+    transform: scale(1.05);
+  }
+  
+  /* Conteneur des informations du client */
+  .client-content {
+    width: 100%;
+  }
+  
+  /* Table des informations du client */
+  .client-table {
+    background-color: #fff;
+    border-radius: 10px;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+  
+  /* En-tête de la table */
+  .ant-table-thead > tr > th {
+    background-color: #2563eb; /* Couleur bleu ciel */
+    color: white;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  /* Corps de la table */
+  .ant-table-tbody > tr > td {
+    text-align: center;
+    padding: 12px;
+    color: #3a21c4;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  
+  /* Effet hover sur les lignes */
+  .ant-table-tbody > tr:hover {
+    background-color: #334155;
+    transition: all 0.3s ease;
+  }
+  
+  /* Spinner de chargement */
+  .ant-spin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
