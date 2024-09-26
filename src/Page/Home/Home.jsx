@@ -205,11 +205,18 @@ const Home = ({ connectedUser }) => {
         <Button type="primary" onClick={() => navigate('/users')} style={{ marginLeft: 8 }}>
           Gestion des Utilisateurs
         </Button>
+        <Button type="primary" onClick={() => navigate('/gestion-cartes')} style={{ marginLeft: 8 }}>
+          Gestion des Cartes
+        </Button>
         <Button icon={<ReloadOutlined />} type="default" onClick={handleRefresh} style={{ marginLeft: 8 }}>
           Rafraîchir
         </Button>
+        <Button type="primary" onClick={() => navigate('/gestion-transactions')} style={{ marginLeft: 8 }}>
+          Gestion des Transactions
+        </Button>
+        <RangePicker onChange={(dates, dateStrings) => setFilter({ dates: dateStrings })} style={{ marginLeft: 8 }} />
       </div>
-      
+
       <div className="table-container">
         {loading ? <Spin size="large" /> : <Table dataSource={clients} columns={columns} rowKey="id" bordered pagination={{ pageSize: 10 }} size="middle" style={{ backgroundColor: '#f0f2f5', borderRadius: '10px' }} />}
       </div>
@@ -249,4 +256,4 @@ const Home = ({ connectedUser }) => {
   );
 };
 
-export default Home
+export default Home;
