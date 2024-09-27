@@ -86,7 +86,12 @@ const GestionDeTransaction = () => {
               { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
               { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
               { title: 'Statut du Forfait', dataIndex: 'statutForfait', key: 'statutForfait' },
-              { title: 'Nom du Terminal', dataIndex: 'androidId', key: 'androidId', render: () => 'Terminal 4' },
+              { 
+                title: 'Nom du Terminal', 
+                dataIndex: 'androidId', 
+                key: 'androidId',
+                render: (text) => text === '67404a359fea20a2' ? 'Terminal 1' : 'Terminal'
+              }, // Remplacement du nom du terminal par "Terminal 1" pour l'adresse MAC spécifique
               { title: 'Rôle Utilisateur', dataIndex: 'roleUtilisateur', key: 'roleUtilisateur' },
               { title: 'Nom de l\'Utilisateur', dataIndex: 'nomUtilisateur', key: 'nomUtilisateur' },
               { 
