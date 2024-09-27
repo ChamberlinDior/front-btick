@@ -55,6 +55,12 @@ const TransactionPage = () => {
 
   const columns = [
     {
+      title: 'ID Transaction',
+      dataIndex: 'idTransaction',
+      key: 'idTransaction',
+      render: (text, record, index) => (index + 1).toString().padStart(2, '0'),  // Générer un ID avec format 01, 02, etc.
+    },
+    {
       title: 'Type de Forfait',
       dataIndex: 'typeForfait',
       key: 'typeForfait',
@@ -111,6 +117,7 @@ const TransactionPage = () => {
           columns={columns}
           rowKey="id"
           pagination={{ pageSize: 10 }}
+          bordered  // Ajout des lignes horizontales pour séparer les colonnes
         />
       )}
     </div>

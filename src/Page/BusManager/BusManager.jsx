@@ -35,6 +35,13 @@ const BusManager = () => {
 
       const updatedBusData = busData.map((bus) => {
         const macAddress = bus.macAddress;
+        const debutTrajet = new Date(bus.debutTrajet);
+        const finTrajet = bus.finTrajet ? new Date(bus.finTrajet) : null;
+
+        // Vider la date de fin si la date de début est postérieure à la date de fin
+        if (finTrajet && debutTrajet > finTrajet) {
+          bus.finTrajet = '';
+        }
 
         if (!macToTerminalMap[macAddress]) {
           macToTerminalMap[macAddress] = `Terminal ${terminalCounter}`;
@@ -77,7 +84,7 @@ const BusManager = () => {
     try {
       const response = await axiosInstance.post('/buses/create', values);
       message.success('Bus créé avec succès');
-      setBuses((prevBuses) => [...prevBuses, { ...response.data, key: response.data.id }]);
+      setBuses((prevBuses) => [...prevBuses, { ...response.data, key: response.data.id, finTrajet: '' }]);
       setIsCreationModalVisible(false);
       form.resetFields();
     } catch (error) {
@@ -119,6 +126,15 @@ const BusManager = () => {
       if (index > -1) {
         const item = newData[index];
         const updatedBus = { ...item, ...row };
+
+        // Si la nouvelle date de début est supérieure à la date de fin, vider la date de fin
+        const debutTrajet = new Date(updatedBus.debutTrajet);
+        const finTrajet = updatedBus.finTrajet ? new Date(updatedBus.finTrajet) : null;
+
+        if (finTrajet && debutTrajet > finTrajet) {
+          updatedBus.finTrajet = '';
+        }
+
         newData.splice(index, 1, updatedBus);
         setBuses(newData);
         setEditingKey('');
@@ -247,7 +263,7 @@ const BusManager = () => {
       title: 'Fin du Trajet',
       dataIndex: 'finTrajet',
       key: 'finTrajet',
-      render: (text) => (text ? new Date(text).toLocaleString() : 'N/A'),
+      render: (text) => (text ? new Date(text).toLocaleString() : ''),  // Si pas encore terminée, case vide
     },
     {
       title: 'Nom du Terminal',
@@ -433,7 +449,7 @@ const BusManager = () => {
             { title: 'Dernière Destination', dataIndex: 'lastDestination', key: 'lastDestination', ...getColumnSearchProps('lastDestination', '#fadb14') },
             { title: 'Nom du Chauffeur', dataIndex: 'chauffeurNom', key: 'chauffeurNom', ...getColumnSearchProps('chauffeurNom', '#42e6a4') },
             { title: 'Début du Trajet', dataIndex: 'debutTrajet', key: 'debutTrajet', render: (text) => text ? new Date(text).toLocaleString() : 'N/A' },
-            { title: 'Fin du Trajet', dataIndex: 'finTrajet', key: 'finTrajet', render: (text) => text ? new Date(text).toLocaleString() : 'N/A' },
+            { title: 'Fin du Trajet', dataIndex: 'finTrajet', key: 'finTrajet', render: (text) => text ? new Date(text).toLocaleString() : '' },
             { title: 'Nom du Terminal', dataIndex: 'terminalName', key: 'terminalName', ...getColumnSearchProps('terminalName', '#f50') },
           ]}
           rowKey={(record) => `${record.macAddress}-${record.debutTrajet}`}

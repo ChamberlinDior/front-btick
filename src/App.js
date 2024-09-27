@@ -12,7 +12,8 @@ import CarteClientPage from './Page/CarteClientPage/CarteClientPage';
 import GestionDesCartes from './Page/GestionDesCartes/GestionDesCartes'; // Import du composant GestionDesCartes
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Par défaut, l'utilisateur est considéré comme connecté
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Change from false to true
   const [connectedUser, setConnectedUser] = useState(null);
 
   return (
@@ -27,59 +28,59 @@ function App() {
         {/* Route vers la page d'accueil */}
         <Route
           path="/home"
-          element={isAuthenticated ? <Home connectedUser={connectedUser} /> : <Navigate to="/login" />}
+          element={<Home connectedUser={connectedUser} />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la page des transactions */}
         <Route
           path="/transactions"
-          element={isAuthenticated ? <TransactionPage /> : <Navigate to="/login" />}
+          element={<TransactionPage />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la gestion des transactions */}
         <Route
           path="/gestion-transactions"
-          element={isAuthenticated ? <GestionDeTransaction /> : <Navigate to="/login" />}
+          element={<GestionDeTransaction />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la page de Carte Attachée */}
         <Route
           path="/carte-attache/:clientId"
-          element={isAuthenticated ? <CarteAttachePage /> : <Navigate to="/login" />}
+          element={<CarteAttachePage />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la gestion des utilisateurs */}
         <Route
           path="/users"
-          element={isAuthenticated ? <UserManager /> : <Navigate to="/login" />}
+          element={<UserManager />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la gestion des bus */}
         <Route
           path="/bus-manager"
-          element={isAuthenticated ? <BusManager /> : <Navigate to="/login" />}
+          element={<BusManager />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la page Profil de Client */}
         <Route
           path="/profil-client/:clientId"
-          element={isAuthenticated ? <ProfilDeClient /> : <Navigate to="/login" />}
+          element={<ProfilDeClient />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la page d'affichage de la carte du client */}
         <Route
           path="/carte-client/:clientId"
-          element={isAuthenticated ? <CarteClientPage /> : <Navigate to="/login" />}
+          element={<CarteClientPage />} // Suppression de la vérification de isAuthenticated
         />
 
         {/* Route vers la gestion des cartes */}
         <Route
           path="/gestion-cartes"
-          element={isAuthenticated ? <GestionDesCartes /> : <Navigate to="/login" />}
+          element={<GestionDesCartes />} // Suppression de la vérification de isAuthenticated
         />
 
-        {/* Redirection par défaut vers la page de connexion */}
-        <Route path="/" element={<Navigate to="/login" />} />
+        {/* Redirection par défaut vers la page d'accueil si l'utilisateur est connecté */}
+        <Route path="/" element={<Navigate to="/home" />} />
       </Routes>
     </Router>
   );

@@ -16,7 +16,9 @@ const GestionDeTransaction = () => {
     setLoading(true);
     axios.get('http://51.178.42.116:8089/api/forfait-verifications')
       .then(response => {
-        setForfaits(response.data);
+        // Trier les transactions par date, de la plus récente à la plus ancienne
+        const sortedForfaits = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
+        setForfaits(sortedForfaits);
         setLoading(false);
       })
       .catch(error => {
@@ -32,7 +34,8 @@ const GestionDeTransaction = () => {
     setLoading(true);
     axios.get('http://51.178.42.116:8089/api/forfait-verifications')
       .then(response => {
-        setForfaits(response.data);
+        const sortedForfaits = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
+        setForfaits(sortedForfaits);
         setLoading(false);
         message.success("Vérifications mises à jour avec succès !");
       })
@@ -79,14 +82,25 @@ const GestionDeTransaction = () => {
           <Table
             dataSource={forfaits}
             columns={[
+              { title: 'ID Transaction', dataIndex: 'id', key: 'id' }, // Colonne pour l'identifiant unique
               { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
               { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
               { title: 'Statut du Forfait', dataIndex: 'statutForfait', key: 'statutForfait' },
               { title: 'Nom du Terminal', dataIndex: 'androidId', key: 'androidId', render: () => 'Terminal 4' },
               { title: 'Rôle Utilisateur', dataIndex: 'roleUtilisateur', key: 'roleUtilisateur' },
               { title: 'Nom de l\'Utilisateur', dataIndex: 'nomUtilisateur', key: 'nomUtilisateur' },
-              { title: 'Date de Vérification', dataIndex: 'dateVerification', key: 'dateVerification', render: text => new Date(text).toLocaleDateString() },
-              { title: 'Heure de Vérification', dataIndex: 'dateVerification', key: 'heureVerification', render: text => new Date(text).toLocaleTimeString() },
+              { 
+                title: 'Date de Vérification', 
+                dataIndex: 'dateVerification', 
+                key: 'dateVerification', 
+                render: text => new Date(text).toLocaleDateString() 
+              },
+              { 
+                title: 'Heure de Vérification', 
+                dataIndex: 'dateVerification', 
+                key: 'heureVerification', 
+                render: text => new Date(text).toLocaleTimeString() 
+              },
             ]}
             rowKey="id"
             bordered

@@ -3,6 +3,7 @@ import { Table, Spin, message, Button, Input } from 'antd';
 import { ReloadOutlined, ArrowLeftOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../axiosConfig';
+import axios from 'axios';
 import moment from 'moment';
 import 'moment/locale/fr'; // Import du français pour moment.js
 import './GestionDesCartes.css'; // Le fichier CSS pour styliser la page
@@ -12,11 +13,24 @@ moment.locale('fr'); // Configurer le français pour moment.js
 const GestionDesCartes = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [forfaits, setForfaits] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchClients(); // Récupérer les clients
+    fetchForfaitVerifications(); // Récupérer les vérifications de forfaits
   }, []);
+
+  // Fonction pour changer visuellement le statut du client (sans impact serveur)
+  const toggleClientStatus = (clientId) => {
+    setClients((prevClients) =>
+      prevClients.map((client) =>
+        client.id === clientId
+          ? { ...client, statut: client.statut === 'actif' ? 'désactivé' : 'actif' }
+          : client
+      )
+    );
+  };
 
   // Fonction pour récupérer les informations des clients et l'historique des forfaits pour afficher la date d'activation
   const fetchClients = async () => {
@@ -29,11 +43,13 @@ const GestionDesCartes = () => {
           return {
             ...client,
             nomAgent: client.nomAgent || 'Agent inconnu',
+            rfid: client.rfid || 'Non disponible', // Récupérer le numéro RFID (numéro de la carte)
             dateFinValidite: client.dateCreation
               ? moment(client.dateCreation).add(3, 'years').format('dddd D MMMM YYYY') // Afficher en lettres
               : 'N/A',
+            dateCreation: moment(client.dateCreation).format('dddd D MMMM YYYY'), // Date de délivrance (création)
             dernierPointage, // Dernière date d'activation du forfait en lettres (sans l'heure)
-            statut: 'actif',
+            statut: 'actif', // Statut par défaut à 'actif'
           };
         })
       );
@@ -65,6 +81,25 @@ const GestionDesCartes = () => {
       message.error(`Erreur lors de la récupération de l'historique des forfaits pour le client ${clientId}.`);
       return 'Aucune activation trouvée';
     }
+  };
+
+  // Récupérer toutes les vérifications de forfaits depuis l'API
+  const fetchForfaitVerifications = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://192.168.1.69:8080/api/forfait-verifications');
+      setForfaits(response.data);
+      setLoading(false);
+    } catch (error) {
+      message.error('Erreur lors de la récupération des vérifications de forfaits.');
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour récupérer la dernière date de pointage (vérification du forfait) d'un client
+  const getDerniereVerification = (clientId) => {
+    const forfaitClient = forfaits.find((forfait) => forfait.rfid === clientId);
+    return forfaitClient ? moment(forfaitClient.dateVerification).format('dddd D MMMM YYYY') : 'Aucune vérification';
   };
 
   // Fonction pour appliquer un filtre sur les colonnes
@@ -118,7 +153,13 @@ const GestionDesCartes = () => {
       ...getColumnSearchProps('prenom'),
     },
     {
-      title: 'Date de Pointage',
+      title: 'Numéro de la Carte',
+      dataIndex: 'rfid', // Colonne pour le numéro RFID
+      key: 'rfid',
+      render: (text) => <span>{text}</span>,
+    },
+    {
+      title: 'Date de Dernière Transaction',
       dataIndex: 'dernierPointage',
       key: 'dernierPointage',
       render: (text) => <span>{text}</span>, // Afficher la date d'activation en lettres sans l'heure
@@ -130,16 +171,57 @@ const GestionDesCartes = () => {
       render: (text) => <span>{text}</span>, // Affichage de la date de fin de validité en lettres
     },
     {
+      title: 'Date de Délivrance',
+      dataIndex: 'dateCreation', // Colonne pour la date de création (délivrance)
+      key: 'dateCreation',
+      render: (text) => <span>{text}</span>, // Affichage de la date de création en lettres
+    },
+    {
+      title: 'Date de Pointage',
+      key: 'dateVerification',
+      render: (_, record) => <span>{getDerniereVerification(record.rfid)}</span>, // Remonter la date de vérification
+    },
+    {
       title: 'Nom de l\'Agent',
       dataIndex: 'nomAgent',
       key: 'nomAgent',
       ...getColumnSearchProps('nomAgent'),
     },
+    {
+      title: 'Terminal',
+      dataIndex: 'terminal',
+      key: 'terminal',
+      render: () => 'Terminal 4', // Exemple de valeur fixe pour le terminal
+    },
+    {
+      title: 'Statut',
+      dataIndex: 'statut',
+      key: 'statut',
+      render: (_, record) => (
+        <div>
+          {record.statut === 'actif' ? (
+            <Button type="default" onClick={() => toggleClientStatus(record.id)}>
+              Désactiver
+            </Button>
+          ) : (
+            <Button type="default" onClick={() => toggleClientStatus(record.id)}>
+              Activer
+            </Button>
+          )}
+        </div>
+      ),
+    },
   ];
+
+  // Fonction pour styliser la ligne en fonction du statut
+  const getRowClassName = (record) => {
+    return record.statut === 'désactivé' ? 'row-disabled' : 'row-active'; // Appliquer la classe 'row-disabled' si désactivé
+  };
 
   // Rafraîchir les données
   const handleRefresh = () => {
     fetchClients();
+    fetchForfaitVerifications();
     message.success('Données mises à jour avec succès !');
   };
 
@@ -165,6 +247,7 @@ const GestionDesCartes = () => {
           rowKey="numClient"
           bordered
           pagination={{ pageSize: 10 }}
+          rowClassName={getRowClassName} // Ajouter la classe en fonction du statut
         />
       )}
     </div>
