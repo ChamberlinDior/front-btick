@@ -1,0 +1,132 @@
+/* Conteneur principal */
+.terminal-manager-container {
+    background-color: #1c2b59; /* Bleu nuit pour un look plus professionnel */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Barre de navigation supérieure */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1c2b59; /* Fond bleu nuit pour une apparence uniforme */
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* Style des boutons de la barre de navigation */
+.top-bar button {
+    margin-left: 10px;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 5px;
+    background-color: #4f9aff; /* Bleu plus professionnel */
+    color: #fff;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.top-bar button:hover {
+    background-color: #357ae8; /* Bleu plus foncé au survol pour un effet visuel */
+    transform: scale(1.05);
+}
+
+/* Conteneur de la table */
+.table-container {
+    background-color: #1c2b59; /* Fond bleu nuit */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* En-tête de la table */
+.ant-table-thead > tr > th {
+    background-color: #357ae8; /* Bleu légèrement plus clair pour l'en-tête */
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px;
+    border-top: 1px solid #e8e8e8;
+}
+
+/* Corps de la table */
+.ant-table-tbody > tr > td {
+    text-align: center;
+    padding: 12px;
+    color: #e3e3e3; /* Texte gris clair pour un meilleur contraste */
+    border-bottom: 1px solid #357ae8; /* Ligne de séparation bleu clair */
+}
+
+/* Effet hover sur les lignes de la table */
+.ant-table-tbody > tr:hover {
+    background-color: #293d66; /* Fond bleu foncé légèrement plus clair au survol */
+    transition: all 0.3s ease;
+}
+
+/* Style pour les Modals */
+.ant-modal-content {
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    background-color: #2b355a; /* Fond gris bleu sombre pour un meilleur contraste */
+    color: #f0f4f8; /* Texte clair pour une meilleure lisibilité */
+}
+
+/* Input et champs du formulaire */
+.ant-form-item {
+    margin-bottom: 20px;
+}
+
+.ant-input, .ant-select-selector {
+    border-radius: 5px;
+    height: 40px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    background-color: #1f2747; /* Fond plus foncé pour les inputs */
+    color: #e0e0e0; /* Texte gris clair pour un bon contraste */
+}
+
+.ant-input:focus, .ant-select-selector:focus {
+    border-color: #4f9aff; /* Bleu clair lors du focus */
+    box-shadow: 0 0 8px rgba(79, 154, 255, 0.6);
+}
+
+/* Pagination */
+.ant-pagination-item {
+    border-radius: 50%;
+    border: 1px solid #2a418d;
+    background-color: #2b355a; /* Bleu foncé pour un look plus homogène */
+    color: #fff;
+}
+
+.ant-pagination-item:hover {
+    border-color: #4f9aff;
+    background-color: #4f9aff;
+}
+
+.ant-pagination-item-active {
+    background-color: #357ae8;
+    color: #fff;
+    border-color: #357ae8;
+}
+
+/* Popup table styling for better readability */
+.ant-modal .ant-table {
+    background-color: #2b355a; /* Fond plus sombre pour le tableau dans les popups */
+    color: #e0e0e0; /* Texte clair pour la lisibilité */
+}
+
+.ant-modal .ant-table-thead > tr > th {
+    background-color: #357ae8; /* Fond bleu pour l'en-tête du tableau */
+    color: white;
+}
+
+.ant-modal .ant-table-tbody > tr > td {
+    color: #e0e0e0; /* Texte gris clair dans le tableau du popup */
+}

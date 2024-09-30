@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Modal, Input, Table, message, Form, DatePicker, Popconfirm } from 'antd';
+import { Button, Modal, Input, Table, message, Form, DatePicker, Select, Popconfirm } from 'antd';
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBatteryThreeQuarters, faBatteryHalf, faBatteryQuarter, faBatteryFull, faBolt } from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import './BusManager.css';
 
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const BusManager = () => {
   const [isCreationModalVisible, setIsCreationModalVisible] = useState(false);
@@ -24,6 +25,37 @@ const BusManager = () => {
 
   const navigate = useNavigate();
 
+  const marques = ['Toyota', 'Mercedes', 'Renault', 'Iveco'];
+  const immatriculations = ['ABC-123-GA', 'XYZ-456-LB', 'JKL-789-CT', 'MNO-234-DP'];
+  const modelesToyota = ['Coaster', 'Hiace'];
+  const modelesMercedes = ['Sprinter', 'Citaro'];
+  const modelesRenault = ['Master', 'Traffic'];
+  const modelesIveco = ['Daily', 'Urbanway'];
+
+  const [selectedMarque, setSelectedMarque] = useState('');
+  const [availableModels, setAvailableModels] = useState([]);
+
+  const handleMarqueChange = (value) => {
+    setSelectedMarque(value);
+    switch (value) {
+      case 'Toyota':
+        setAvailableModels(modelesToyota);
+        break;
+      case 'Mercedes':
+        setAvailableModels(modelesMercedes);
+        break;
+      case 'Renault':
+        setAvailableModels(modelesRenault);
+        break;
+      case 'Iveco':
+        setAvailableModels(modelesIveco);
+        break;
+      default:
+        setAvailableModels([]);
+        break;
+    }
+  };
+
   const fetchBuses = useCallback(async () => {
     setLoading(true);
     try {
@@ -38,7 +70,6 @@ const BusManager = () => {
         const debutTrajet = new Date(bus.debutTrajet);
         const finTrajet = bus.finTrajet ? new Date(bus.finTrajet) : null;
 
-        // Vider la date de fin si la date de début est postérieure à la date de fin
         if (finTrajet && debutTrajet > finTrajet) {
           bus.finTrajet = '';
         }
@@ -127,7 +158,6 @@ const BusManager = () => {
         const item = newData[index];
         const updatedBus = { ...item, ...row };
 
-        // Si la nouvelle date de début est supérieure à la date de fin, vider la date de fin
         const debutTrajet = new Date(updatedBus.debutTrajet);
         const finTrajet = updatedBus.finTrajet ? new Date(updatedBus.finTrajet) : null;
 
@@ -400,25 +430,43 @@ const BusManager = () => {
       >
         <Form form={form} onFinish={handleCreateBus}>
           <Form.Item
+            name="marque"
+            label="Marque"
+            rules={[{ required: true, message: 'Veuillez sélectionner la marque' }]}
+          >
+            <Select placeholder="Sélectionner une marque" onChange={handleMarqueChange}>
+              {marques.map((marque) => (
+                <Option key={marque} value={marque}>
+                  {marque}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
             name="modele"
             label="Modèle"
-            rules={[{ required: true, message: 'Veuillez entrer le modèle du bus' }]}
+            rules={[{ required: true, message: 'Veuillez sélectionner le modèle' }]}
           >
-            <Input />
+            <Select placeholder="Sélectionner un modèle" disabled={!selectedMarque}>
+              {availableModels.map((modele) => (
+                <Option key={modele} value={modele}>
+                  {modele}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="matricule"
             label="Immatriculation"
-            rules={[{ required: true, message: 'Veuillez entrer le numéro d\'immatriculation' }]}
+            rules={[{ required: true, message: 'Veuillez sélectionner une immatriculation' }]}
           >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="marque"
-            label="Marque"
-            rules={[{ required: true, message: 'Veuillez entrer la marque' }]}
-          >
-            <Input />
+            <Select placeholder="Sélectionner une immatriculation">
+              {immatriculations.map((immatriculation) => (
+                <Option key={immatriculation} value={immatriculation}>
+                  {immatriculation}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="macAddress"

@@ -9,78 +9,91 @@ import CarteAttachePage from './Page/CarteAttache/CarteAttachePage';
 import GestionDeTransaction from './Page/GestionDeTransaction/GestionDeTransaction';
 import ProfilDeClient from './Page/ProfilDeClient/ProfilDeClient';
 import CarteClientPage from './Page/CarteClientPage/CarteClientPage';
-import GestionDesCartes from './Page/GestionDesCartes/GestionDesCartes'; // Import du composant GestionDesCartes
+import GestionDesCartes from './Page/GestionDesCartes/GestionDesCartes';
+import TerminalManager from './Page/TerminalManager/TerminalManager';
+import TrajetHistory from './Page/TrajetHistory/TrajetHistory';
 
 function App() {
-  // Par défaut, l'utilisateur est considéré comme connecté
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Change from false to true
-  const [connectedUser, setConnectedUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // L'utilisateur commence non connecté
+  const [connectedUser, setConnectedUser] = useState(null); // Stocker les infos de l'utilisateur connecté
 
   return (
     <Router>
       <Routes>
         {/* Route vers la page de connexion */}
-        <Route 
-          path="/login" 
-          element={<Login setIsAuthenticated={setIsAuthenticated} setConnectedUser={setConnectedUser} />} 
+        <Route
+          path="/login"
+          element={<Login setIsAuthenticated={setIsAuthenticated} setConnectedUser={setConnectedUser} />}
         />
-        
-        {/* Route vers la page d'accueil */}
+
+        {/* Route vers la page d'accueil (protégée, nécessite l'authentification) */}
         <Route
           path="/home"
-          element={<Home connectedUser={connectedUser} />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <Home connectedUser={connectedUser} /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la page des transactions */}
+        {/* Route vers la page des transactions (protégée) */}
         <Route
           path="/transactions"
-          element={<TransactionPage />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <TransactionPage /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la gestion des transactions */}
+        {/* Route vers la gestion des transactions (protégée) */}
         <Route
           path="/gestion-transactions"
-          element={<GestionDeTransaction />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <GestionDeTransaction /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la page de Carte Attachée */}
+        {/* Route vers la page de Carte Attachée (protégée) */}
         <Route
           path="/carte-attache/:clientId"
-          element={<CarteAttachePage />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <CarteAttachePage /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la gestion des utilisateurs */}
+        {/* Route vers la gestion des utilisateurs (protégée) */}
         <Route
           path="/users"
-          element={<UserManager />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <UserManager /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la gestion des bus */}
+        {/* Route vers la gestion des bus (protégée) */}
         <Route
           path="/bus-manager"
-          element={<BusManager />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <BusManager /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la page Profil de Client */}
+        {/* Route vers la page Profil de Client (protégée) */}
         <Route
           path="/profil-client/:clientId"
-          element={<ProfilDeClient />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <ProfilDeClient /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la page d'affichage de la carte du client */}
+        {/* Route vers la page d'affichage de la carte du client (protégée) */}
         <Route
           path="/carte-client/:clientId"
-          element={<CarteClientPage />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <CarteClientPage /> : <Navigate to="/login" />}
         />
 
-        {/* Route vers la gestion des cartes */}
+        {/* Route vers la gestion des cartes (protégée) */}
         <Route
           path="/gestion-cartes"
-          element={<GestionDesCartes />} // Suppression de la vérification de isAuthenticated
+          element={isAuthenticated ? <GestionDesCartes /> : <Navigate to="/login" />}
         />
 
-        {/* Redirection par défaut vers la page d'accueil si l'utilisateur est connecté */}
-        <Route path="/" element={<Navigate to="/home" />} />
+        {/* Route vers la gestion des terminaux (protégée) */}
+        <Route
+          path="/gestion-terminaux"
+          element={isAuthenticated ? <TerminalManager /> : <Navigate to="/login" />}
+        />
+
+        {/* Route vers l'historique des trajets (protégée) */}
+        <Route
+          path="/trajet-history/:macAddress"
+          element={isAuthenticated ? <TrajetHistory /> : <Navigate to="/login" />}
+        />
+
+        {/* Redirection par défaut vers la page d'accueil si l'utilisateur est connecté, sinon vers login */}
+        <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );

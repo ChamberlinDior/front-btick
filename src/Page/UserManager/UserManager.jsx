@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Modal, Form, Input, Table, message, Select, Avatar, Tag, DatePicker, Spin } from 'antd';
-import { PlusOutlined, ReloadOutlined, EditOutlined, EyeOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'; 
+import { Button, Modal, Form, Input, Table, message, Select, Avatar, Tag, Spin } from 'antd';
+import { PlusOutlined, ReloadOutlined, EditOutlined, EyeOutlined, DeleteOutlined, SearchOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import axiosInstance from '../../axiosConfig';
 import { useNavigate } from 'react-router-dom';
-import './UserManager.css'; 
+import './UserManager.css';
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 const generateUniqueUserNumber = () => {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -49,14 +48,18 @@ const getColumnSearchProps = (dataIndex, searchInput, setSearchInput, handleSear
 
 const UserManager = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({});
+  const [transactions, setTransactions] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [form] = Form.useForm();
   const [searchInput, setSearchInput] = useState(null);
-  
   const navigate = useNavigate();
 
+  // Fetching user data from the backend
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -73,6 +76,7 @@ const UserManager = () => {
     fetchUsers();
   }, [fetchUsers]);
 
+  // Handle creation of a new user
   const handleCreateUser = async (values) => {
     setLoading(true);
     try {
@@ -90,6 +94,7 @@ const UserManager = () => {
     }
   };
 
+  // Handle deletion of a user
   const handleDeleteUser = async (userId) => {
     setLoading(true);
     try {
@@ -101,6 +106,37 @@ const UserManager = () => {
       message.error("Erreur lors de la suppression de l'utilisateur.");
       setLoading(false);
     }
+  };
+
+  // Fetch user transactions (Copied from GestionDeTransaction)
+  const fetchUserTransactions = async (user) => {
+    setLoadingTransactions(true);
+    try {
+      const response = await axiosInstance.get('/api/forfait-verifications', {
+        params: {
+          nomUtilisateur: user.nom,
+          roleUtilisateur: user.role,
+          uniqueUserNumber: user.uniqueUserNumber,
+        },
+      });
+      const sortedTransactions = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
+      setTransactions(sortedTransactions);
+      setLoadingTransactions(false);
+    } catch (error) {
+      message.error("Erreur lors de la récupération des transactions.");
+      setLoadingTransactions(false);
+    }
+  };
+
+  const handleShowDetails = (user) => {
+    setSelectedUser(user);
+    fetchUserTransactions(user);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailModalVisible(false);
+    setTransactions([]);
   };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -162,29 +198,48 @@ const UserManager = () => {
       key: 'actions',
       render: (text, record) => (
         <div className="action-buttons">
-          <Button 
-            icon={<EyeOutlined />} 
-            onClick={() => navigate(`/users/${record.id}`)} 
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => handleShowDetails(record)}
             className="details-button"
           >
             Détails
           </Button>
-          <Button 
-            icon={<EditOutlined />} 
-            onClick={() => setIsModalVisible(true)} 
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => setIsModalVisible(true)}
             className="edit-button"
           >
             Éditer
           </Button>
-          <Button 
-            icon={<DeleteOutlined />} 
-            onClick={() => handleDeleteUser(record.id)} 
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => handleDeleteUser(record.id)}
             className="delete-button"
           >
             Supprimer
           </Button>
         </div>
       ),
+    },
+  ];
+
+  const transactionsColumns = [
+    { title: 'ID Transaction', dataIndex: 'id', key: 'id' },
+    { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
+    { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
+    { title: 'Statut', dataIndex: 'statutForfait', key: 'statutForfait' },
+    { 
+      title: 'Date', 
+      dataIndex: 'dateVerification', 
+      key: 'dateVerification', 
+      render: (text) => new Date(text).toLocaleDateString('fr-FR') 
+    },
+    { 
+      title: 'Heure', 
+      dataIndex: 'dateVerification', 
+      key: 'heureVerification', 
+      render: (text) => new Date(text).toLocaleTimeString('fr-FR') 
     },
   ];
 
@@ -196,25 +251,15 @@ const UserManager = () => {
   return (
     <div className="usermanager-container">
       <div className="top-bar">
+        <Button icon={<ArrowLeftOutlined />} type="default" onClick={() => navigate('/home')} style={{ marginRight: 8 }}>
+          Retour au Menu Principal
+        </Button>
         <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsModalVisible(true)}>
           Créer un Utilisateur
         </Button>
         <Button icon={<ReloadOutlined />} type="default" onClick={handleRefresh} style={{ marginLeft: 8 }}>
           Rafraîchir
         </Button>
-        <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginLeft: 8 }}>
-          Gestion des Trajets
-        </Button>
-        <Button type="primary" onClick={() => navigate('/users')} style={{ marginLeft: 8 }}>
-          Gestion des Utilisateurs
-        </Button>
-        <Button type="primary" onClick={() => navigate('/')} style={{ marginLeft: 8 }}>
-          Gestion des Clients
-        </Button>
-        <Button type="primary" onClick={() => navigate('/gestion-transactions')} style={{ marginLeft: 8 }}>
-          Gestion de Transactions
-        </Button>
-        <RangePicker onChange={(dates, dateStrings) => setFilter({ dates: dateStrings })} style={{ marginLeft: 8 }} />
       </div>
 
       <div className="table-container">
@@ -228,7 +273,7 @@ const UserManager = () => {
             bordered
             pagination={{ pageSize: 10 }}
             size="middle"
-            style={{ backgroundColor: '#2563eb', borderRadius: '10px', color: '#fff' }} 
+            style={{ backgroundColor: '#2563eb', borderRadius: '10px', color: '#fff' }}
           />
         )}
       </div>
@@ -248,11 +293,30 @@ const UserManager = () => {
               <Option value="EMPLOYE">EMPLOYE</Option>
               <Option value="CHAUFFEUR">CHAUFFEUR</Option>
               <Option value="CONTROLEUR">CONTROLEUR</Option>
-              <Option value="CAISSIER">CAISSIER</Option>
             </Select>
           </Form.Item>
           <Button type="primary" htmlType="submit">Créer</Button>
         </Form>
+      </Modal>
+
+      <Modal
+        title={`Transactions de ${selectedUser?.nom}`}
+        visible={isDetailModalVisible}
+        onCancel={handleCloseDetails}
+        footer={null}
+        width="80%"
+      >
+        {loadingTransactions ? (
+          <Spin size="large" />
+        ) : (
+          <Table
+            dataSource={transactions}
+            columns={transactionsColumns}
+            rowKey="id"
+            bordered
+            pagination={{ pageSize: 10 }}
+          />
+        )}
       </Modal>
     </div>
   );

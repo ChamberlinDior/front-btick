@@ -214,6 +214,9 @@ const Home = ({ connectedUser }) => {
         <Button type="primary" onClick={() => navigate('/gestion-transactions')} style={{ marginLeft: 8 }}>
           Gestion des Transactions
         </Button>
+        <Button type="primary" onClick={() => navigate('/gestion-terminaux')} style={{ marginLeft: 8 }}>
+          Gestion des Terminaux
+        </Button>
         <RangePicker onChange={(dates, dateStrings) => setFilter({ dates: dateStrings })} style={{ marginLeft: 8 }} />
       </div>
 
