@@ -2,94 +2,54 @@
     padding: 20px;
     background-color: #f5f5f5;
     min-height: 100vh;
-    font-family: 'Arial', sans-serif; /* Police de caractère moderne */
+    font-family: 'Arial', sans-serif;
+    overflow-y: auto; /* Ajout de la barre de défilement */
 }
 
 .top-bar {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 20px;
-    gap: 10px; /* Espace entre les boutons */
+    gap: 10px;
 }
 
 .table-container {
     margin-top: 20px;
+    max-height: 80vh; /* Limite la hauteur pour permettre le défilement dans le tableau */
+    overflow-y: auto; /* Barre de défilement pour la table si elle dépasse */
 }
 
 .table-container .ant-table {
     background-color: white;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Ombre améliorée */
-    overflow: hidden; /* Évite les débordements */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .table-container .ant-table th {
-    background-color: #e0f7fa; /* Couleur d'arrière-plan des en-têtes */
-    font-weight: bold; /* Texte en gras pour les en-têtes */
-    color: #00796b; /* Couleur du texte en vert foncé */
-    padding: 12px; /* Ajout de padding */
-    border-bottom: 2px solid #00796b; /* Bordure inférieure pour une meilleure séparation */
+    background-color: #e0f7fa;
+    font-weight: bold;
+    color: #00796b;
+    padding: 12px;
+    border-bottom: 2px solid #00796b;
 }
 
 .table-container .ant-table td {
-    font-weight: 500; /* Texte un peu plus gras */
-    padding: 12px; /* Ajout de padding */
-    transition: background-color 0.3s; /* Animation douce pour le changement de couleur */
+    font-weight: 500;
+    padding: 12px;
+    transition: background-color 0.3s;
 }
 
-/* Couleurs des textes pour les cellules */
-.table-container .ant-table td:nth-child(1) { 
-    color: #00796b; /* Vert foncé */
-    background-color: #e0f7fa; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(2) { 
-    color: #004d40; /* Vert très foncé */
-    background-color: #b2ebf2; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(3) { 
-    color: #6a1b9a; /* Violet foncé */
-    background-color: #f1e6ff; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(4) { 
-    color: #1976d2; /* Bleu foncé */
-    background-color: #e3f2fd; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(5) { 
-    color: #d32f2f; /* Rouge foncé */
-    background-color: #ffcdd2; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(6) { 
-    color: #f57c00; /* Orange foncé */
-    background-color: #ffe0b2; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(7) { 
-    color: #0288d1; /* Bleu moyen */
-    background-color: #b3e5fc; /* Fond apaisant */
-}
-.table-container .ant-table td:nth-child(8) { 
-    color: #7b1fa2; /* Violet moyen */
-    background-color: #e1bee7; /* Fond apaisant */
+/* Ajout d'un style scrollbar pour une meilleure apparence */
+.gestion-forfait-page::-webkit-scrollbar {
+    width: 8px;
 }
 
-/* Styles pour les lignes du tableau */
-.table-container .ant-table tr {
-    border-bottom: 1px solid #ddd; /* Ligne de séparation plus subtile */
+.gestion-forfait-page::-webkit-scrollbar-thumb {
+    background-color: #00796b;
+    border-radius: 10px;
 }
 
-.table-container .ant-table tr:hover {
-    background-color: #b2ebf2; /* Couleur d'arrière-plan au survol */
-}
-
-.table-container .ant-table tr:last-child {
-    border-bottom: none; /* Suppression de la bordure pour la dernière ligne */
-}
-
-/* Styles pour les boutons de la top-bar */
-.top-bar .ant-btn {
-    border-radius: 5px; /* Coins arrondis pour les boutons */
-    transition: background-color 0.3s; /* Animation douce pour le changement de couleur */
-}
-
-.top-bar .ant-btn:hover {
-    background-color: #b2ebf2; /* Couleur d'arrière-plan au survol */
+.gestion-forfait-page::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
 }
