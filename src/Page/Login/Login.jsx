@@ -25,25 +25,12 @@ const Login = ({ setIsAuthenticated, setConnectedUser }) => {
   const handleLogin = async (values) => {
     setLoading(true); // Activer l'indicateur de chargement
 
-    const { uniqueUserNumber, nom } = values;
-
-    // Trouver l'utilisateur correspondant
-    const user = users.find(
-      (user) => user.uniqueUserNumber === uniqueUserNumber && user.nom.toLowerCase() === nom.toLowerCase()
-    );
-
-    if (user) {
-      // Si l'utilisateur est trouvé, connexion réussie
-      message.success('Connexion réussie!');
-      setIsAuthenticated(true);
-      setConnectedUser(user); // Définir l'utilisateur connecté
-      setLoading(false); // Désactiver le chargement
-      navigate('/home'); // Rediriger vers la page d'accueil
-    } else {
-      // Si l'utilisateur n'est pas trouvé, afficher une erreur
-      message.error('Identifiant ou nom incorrect.');
-      setLoading(false); // Désactiver le chargement
-    }
+    // Désactiver la vérification des identifiants
+    message.success('Connexion réussie!'); 
+    setIsAuthenticated(true);
+    setConnectedUser(values); // Utiliser les valeurs saisies comme utilisateur connecté
+    setLoading(false); // Désactiver le chargement
+    navigate('/home'); // Rediriger vers la page d'accueil
   };
 
   return (
