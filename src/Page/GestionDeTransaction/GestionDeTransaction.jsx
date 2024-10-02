@@ -14,7 +14,7 @@ const GestionDeTransaction = () => {
   // Récupérer toutes les vérifications de forfaits depuis le backend
   useEffect(() => {
     setLoading(true);
-    axios.get('http://51.178.42.116:8089/api/forfait-verifications')
+    axios.get('http://192.168.1.79:8080/api/forfait-verifications')
       .then(response => {
         // Trier les transactions par date, de la plus récente à la plus ancienne
         const sortedForfaits = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
@@ -32,7 +32,7 @@ const GestionDeTransaction = () => {
   // Rafraîchir les données de vérification de forfaits
   const handleRefresh = () => {
     setLoading(true);
-    axios.get('http://51.178.42.116:8089/api/forfait-verifications')
+    axios.get('http://192.168.1.79:8080/api/forfait-verifications')
       .then(response => {
         const sortedForfaits = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
         setForfaits(sortedForfaits);

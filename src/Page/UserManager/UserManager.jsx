@@ -24,7 +24,7 @@ const UserManager = () => {
   // Récupération des utilisateurs depuis l'API
   useEffect(() => {
     setLoading(true);
-    axios.get('http://51.178.42.116:8089/api/utilisateurs')
+    axios.get('http://192.168.1.79:8080/api/utilisateurs')
       .then(response => {
         setUsers(response.data);
         setLoading(false);
@@ -38,7 +38,7 @@ const UserManager = () => {
   // Récupération des transactions pour un utilisateur spécifique
   const fetchUserTransactions = (user) => {
     setLoadingTransactions(true);
-    axios.get('http://51.178.42.116:8089/api/forfait-verifications', {
+    axios.get('http://192.168.1.79:8080/api/forfait-verifications', {
       params: { nomClient: user.nom, uniqueUserNumber: user.uniqueUserNumber } // Filtrer par nom et numéro utilisateur unique
     })
       .then(response => {
@@ -69,7 +69,7 @@ const UserManager = () => {
   // Rafraîchissement de la liste des utilisateurs
   const handleRefresh = () => {
     setLoading(true);
-    axios.get('http://51.178.42.116:8089/api/utilisateurs')
+    axios.get('http://192.168.1.79:8080/api/utilisateurs')
       .then(response => {
         setUsers(response.data);
         setLoading(false);

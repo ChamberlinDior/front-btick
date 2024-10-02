@@ -14,6 +14,8 @@ const BusManager = () => {
   const [isCreationModalVisible, setIsCreationModalVisible] = useState(false);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [buses, setBuses] = useState([]);
+  const [terminals, setTerminals] = useState([]);
+  const [vehicules, setVehicules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({});
   const [selectedBusHistory, setSelectedBusHistory] = useState([]);
@@ -26,7 +28,6 @@ const BusManager = () => {
   const navigate = useNavigate();
 
   const marques = ['Toyota', 'Mercedes', 'Renault', 'Iveco'];
-  const immatriculations = ['ABC-123-GA', 'XYZ-456-LB', 'JKL-789-CT', 'MNO-234-DP'];
   const modelesToyota = ['Coaster', 'Hiace'];
   const modelesMercedes = ['Sprinter', 'Citaro'];
   const modelesRenault = ['Master', 'Traffic'];
@@ -60,45 +61,11 @@ const BusManager = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get('/buses', { params: filter });
-      const busData = response.data;
-
-      const macToTerminalMap = {};
-      let terminalCounter = 1;
-
-      const updatedBusData = busData.map((bus) => {
-        const macAddress = bus.macAddress;
-        const debutTrajet = new Date(bus.debutTrajet);
-        const finTrajet = bus.finTrajet ? new Date(bus.finTrajet) : null;
-
-        if (finTrajet && debutTrajet > finTrajet) {
-          bus.finTrajet = '';
-        }
-
-        if (!macToTerminalMap[macAddress]) {
-          macToTerminalMap[macAddress] = `Terminal ${terminalCounter}`;
-          terminalCounter += 1;
-        }
-
-        return {
-          ...bus,
-          terminalName: macToTerminalMap[macAddress],
-          key: bus.id,
-        };
-      });
-
-      setBusHistories((prevHistories) => {
-        const updatedHistories = { ...prevHistories };
-        updatedBusData.forEach((bus) => {
-          const macAddress = bus.macAddress;
-          if (!updatedHistories[macAddress]) {
-            updatedHistories[macAddress] = [];
-          }
-          updatedHistories[macAddress] = [bus, ...updatedHistories[macAddress]];
-        });
-        return updatedHistories;
-      });
-
-      setBuses(updatedBusData);
+      const busesWithNames = response.data.map((bus, index) => ({
+        ...bus,
+        terminalName: `ter${String(index + 1).padStart(2, '0')}`, // Assign terminal names like "ter01", "ter02"
+      }));
+      setBuses(busesWithNames);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching buses: ", error);
@@ -107,15 +74,35 @@ const BusManager = () => {
     }
   }, [filter]);
 
+  const fetchTerminals = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/terminals');
+      setTerminals(response.data);
+    } catch (error) {
+      message.error('Erreur lors de la récupération des terminaux.');
+    }
+  }, []);
+
+  const fetchVehicules = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/vehicules');
+      setVehicules(response.data);
+    } catch (error) {
+      message.error('Erreur lors de la récupération des véhicules.');
+    }
+  }, []);
+
   useEffect(() => {
     fetchBuses();
-  }, [fetchBuses]);
+    fetchTerminals();
+    fetchVehicules();
+  }, [fetchBuses, fetchTerminals, fetchVehicules]);
 
   const handleCreateBus = async (values) => {
     try {
       const response = await axiosInstance.post('/buses/create', values);
       message.success('Bus créé avec succès');
-      setBuses((prevBuses) => [...prevBuses, { ...response.data, key: response.data.id, finTrajet: '' }]);
+      setBuses([...buses, { ...response.data, key: response.data.id, terminalName: `ter${String(buses.length + 1).padStart(2, '0')}` }]);
       setIsCreationModalVisible(false);
       form.resetFields();
     } catch (error) {
@@ -156,20 +143,11 @@ const BusManager = () => {
 
       if (index > -1) {
         const item = newData[index];
-        const updatedBus = { ...item, ...row };
-
-        const debutTrajet = new Date(updatedBus.debutTrajet);
-        const finTrajet = updatedBus.finTrajet ? new Date(updatedBus.finTrajet) : null;
-
-        if (finTrajet && debutTrajet > finTrajet) {
-          updatedBus.finTrajet = '';
-        }
-
-        newData.splice(index, 1, updatedBus);
+        newData.splice(index, 1, { ...item, ...row });
         setBuses(newData);
         setEditingKey('');
 
-        await axiosInstance.put(`/buses/${item.id}`, updatedBus);
+        await axiosInstance.put(`/buses/${item.id}`, { ...item, ...row });
         message.success("Bus mis à jour avec succès.");
       } else {
         setEditingKey('');
@@ -204,8 +182,7 @@ const BusManager = () => {
       </div>
     ),
     filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-    onFilter: (value, record) =>
-      record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
+    onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
     render: (text) => <span style={{ color }}>{text}</span>,
   });
 
@@ -278,12 +255,6 @@ const BusManager = () => {
       ...getColumnSearchProps('chauffeurNom', '#42e6a4'),
     },
     {
-      title: 'Numéro Unique du Chauffeur',
-      dataIndex: 'chauffeurUniqueNumber',
-      key: 'chauffeurUniqueNumber',
-      ...getColumnSearchProps('chauffeurUniqueNumber', '#1890ff'),
-    },
-    {
       title: 'Début du Trajet',
       dataIndex: 'debutTrajet',
       key: 'debutTrajet',
@@ -293,7 +264,7 @@ const BusManager = () => {
       title: 'Fin du Trajet',
       dataIndex: 'finTrajet',
       key: 'finTrajet',
-      render: (text) => (text ? new Date(text).toLocaleString() : ''),  // Si pas encore terminée, case vide
+      render: (text) => (text ? new Date(text).toLocaleString() : ''), // Si pas encore terminée, case vide
     },
     {
       title: 'Nom du Terminal',
@@ -301,6 +272,7 @@ const BusManager = () => {
       key: 'terminalName',
       editable: true,
       ...getColumnSearchProps('terminalName', '#f50'),
+      render: (_, record) => record.terminalName || 'N/A',
     },
     {
       title: 'Niveau de Batterie',
@@ -461,9 +433,9 @@ const BusManager = () => {
             rules={[{ required: true, message: 'Veuillez sélectionner une immatriculation' }]}
           >
             <Select placeholder="Sélectionner une immatriculation">
-              {immatriculations.map((immatriculation) => (
-                <Option key={immatriculation} value={immatriculation}>
-                  {immatriculation}
+              {vehicules.map((vehicule) => (
+                <Option key={vehicule.id} value={vehicule.immatriculation}>
+                  {vehicule.immatriculation}
                 </Option>
               ))}
             </Select>
@@ -471,9 +443,15 @@ const BusManager = () => {
           <Form.Item
             name="macAddress"
             label="Adresse MAC du TPE"
-            rules={[{ required: true, message: 'Veuillez entrer l\'adresse MAC du TPE' }]}
+            rules={[{ required: true, message: "Veuillez sélectionner l'adresse MAC du terminal" }]}
           >
-            <Input />
+            <Select placeholder="Sélectionner une adresse MAC">
+              {terminals.map((terminal) => (
+                <Option key={terminal.macAddress} value={terminal.macAddress}>
+                  {terminal.macAddress}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Button type="primary" htmlType="submit">
             Créer

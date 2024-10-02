@@ -12,6 +12,8 @@ import CarteClientPage from './Page/CarteClientPage/CarteClientPage';
 import GestionDesCartes from './Page/GestionDesCartes/GestionDesCartes';
 import TerminalManager from './Page/TerminalManager/TerminalManager';
 import TrajetHistory from './Page/TrajetHistory/TrajetHistory';
+import VehiculeManager from './Page/VehiculeManager/VehiculeManager';
+import LigneTrajetManager from './Page/LigneTrajetManager/LigneTrajetManager'; // Importation du nouveau composant
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // L'utilisateur commence non connecté
@@ -90,6 +92,18 @@ function App() {
         <Route
           path="/trajet-history/:macAddress"
           element={isAuthenticated ? <TrajetHistory /> : <Navigate to="/login" />}
+        />
+
+        {/* Route vers la gestion des véhicules (protégée) */}
+        <Route
+          path="/gestion-vehicules"
+          element={isAuthenticated ? <VehiculeManager /> : <Navigate to="/login" />}
+        />
+
+        {/* Route vers la gestion des lignes de trajet (nouveau composant) */}
+        <Route
+          path="/gestion-lignes"
+          element={isAuthenticated ? <LigneTrajetManager /> : <Navigate to="/login" />}
         />
 
         {/* Redirection par défaut vers la page d'accueil si l'utilisateur est connecté, sinon vers login */}

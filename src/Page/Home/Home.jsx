@@ -217,6 +217,14 @@ const Home = ({ connectedUser }) => {
         <Button type="primary" onClick={() => navigate('/gestion-terminaux')} style={{ marginLeft: 8 }}>
           Gestion des Terminaux
         </Button>
+        {/* Ajout du bouton pour accéder à la gestion des véhicules */}
+        <Button type="primary" onClick={() => navigate('/gestion-vehicules')} style={{ marginLeft: 8 }}>
+          Gestion des Véhicules
+        </Button>
+        {/* Ajout du bouton pour accéder à la gestion des lignes */}
+        <Button type="primary" onClick={() => navigate('/gestion-lignes')} style={{ marginLeft: 8 }}>
+          Gestion des Lignes de Trajet
+        </Button>
         <RangePicker onChange={(dates, dateStrings) => setFilter({ dates: dateStrings })} style={{ marginLeft: 8 }} />
       </div>
 

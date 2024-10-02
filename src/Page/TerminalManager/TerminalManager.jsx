@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Spin, message, Modal, Form, Select } from 'antd';
-import { ReloadOutlined, ArrowLeftOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Utilisation de axios pour les appels backend
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Table, Input, message, Modal, Form, Select } from 'antd';
+import { PlusOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom'; // Importation du hook pour la navigation
+import axiosInstance from '../../axiosConfig';
 import './TerminalManager.css';
 
 const { Option } = Select;
@@ -10,274 +10,164 @@ const { Option } = Select;
 const TerminalManager = () => {
   const [terminals, setTerminals] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [isVerificationModalVisible, setIsVerificationModalVisible] = useState(false);
-  const [forfaitVerifications, setForfaitVerifications] = useState([]);
-  const [selectedTerminal, setSelectedTerminal] = useState(null);
-  const [loadingVerifications, setLoadingVerifications] = useState(false);
+  const [isCreationModalVisible, setIsCreationModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const navigate = useNavigate();
+  const [filter, setFilter] = useState({});
 
-  // Fetch terminals data from the backend
-  const fetchTerminals = async () => {
+  const navigate = useNavigate(); // Hook pour la navigation
+
+  const fetchTerminals = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://51.178.42.116:8089/api/buses');
-      const terminalsData = response.data.map((terminal, index) => ({
-        ...terminal,
-        terminalName: `Terminal ${index + 1}`,
-      }));
-      setTerminals(terminalsData);
+      const response = await axiosInstance.get('/terminals', { params: filter });
+      setTerminals(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching terminals: ", error);
-      message.error("Erreur lors de la récupération des terminaux.");
+      message.error('Erreur lors de la récupération des terminaux.');
       setLoading(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchTerminals();
-  }, []);
+  }, [fetchTerminals]);
 
-  // Fetch Forfait Verifications by macAddress (androidId)
-  const fetchForfaitVerifications = async (macAddress) => {
-    setLoadingVerifications(true);
-    try {
-      const response = await axios.get(`http://51.178.42.116:8089/api/forfait-verifications?androidId=${macAddress}`);
-      const sortedVerifications = response.data.map((item, index) => ({
-        ...item,
-        uniqueNumber: String(index + 1).padStart(2, '0'), // Générer un numéro unique commençant par 01
-      }));
-      setForfaitVerifications(sortedVerifications);
-      setLoadingVerifications(false);
-    } catch (error) {
-      console.error("Error fetching verifications: ", error);
-      message.error("Erreur lors de la récupération des vérifications de forfait.");
-      setLoadingVerifications(false);
-    }
-  };
-
-  // Reload terminal data
-  const handleReload = () => {
-    fetchTerminals();
-  };
-
-  // Function to handle terminal creation
   const handleCreateTerminal = async (values) => {
-    const terminalNumber = terminals.length + 1; // Calculate next terminal number
-    const newTerminalName = `Terminal ${terminalNumber}`;
-    const newTerminal = {
-      macAddress: values.macAddress,
-      typeTerminal: values.typeTerminal,
-      terminalName: newTerminalName,
-    };
-
     try {
-      await axios.post('http://51.178.42.116:8089/api/terminals/create', newTerminal);
-      message.success(`Terminal ${newTerminalName} créé avec succès`);
-      setTerminals([...terminals, newTerminal]);
-      setIsCreateModalVisible(false);
+      const response = await axiosInstance.post('/terminals/create', values);
+      message.success('Terminal créé avec succès');
+      setTerminals([...terminals, response.data]);
+      setIsCreationModalVisible(false);
       form.resetFields();
     } catch (error) {
-      console.error("Error creating terminal: ", error);
-      message.error("Erreur lors de la création du terminal.");
+      message.error('Erreur lors de la création du terminal');
     }
   };
 
-  // Function to handle terminal deletion
-  const handleDeleteTerminal = async (macAddress) => {
-    try {
-      await axios.delete(`http://51.178.42.116:8089/api/buses/${macAddress}`);
-      setTerminals(terminals.filter((terminal) => terminal.macAddress !== macAddress));
-      message.success("Terminal supprimé avec succès.");
-    } catch (error) {
-      console.error("Error deleting terminal: ", error);
-      message.error("Erreur lors de la suppression du terminal.");
-    }
-  };
-
-  // Show the verification history modal for selected terminal
-  const handleViewVerificationHistory = (terminal) => {
-    setSelectedTerminal(terminal);
-    fetchForfaitVerifications(terminal.macAddress); // Fetch verifications based on macAddress (androidId)
-    setIsVerificationModalVisible(true);
-  };
-
-  // Close the verification modal
-  const handleCloseVerificationModal = () => {
-    setIsVerificationModalVisible(false);
-    setForfaitVerifications([]); // Clear data when closing
-  };
-
-  const renderBatteryIcon = (niveauBatterie, isCharging) => {
-    let color = 'green';
-    if (niveauBatterie <= 25) {
-      color = 'red';
-    } else if (niveauBatterie <= 50) {
-      color = 'orange';
-    } else if (niveauBatterie <= 75) {
-      color = 'yellow';
-    }
-
-    return (
-      <span style={{ color }}>
-        {isCharging ? '⚡' : '🔋'} {niveauBatterie}%
-      </span>
-    );
-  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Rechercher ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => confirm()}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Button
+          type="primary"
+          onClick={() => confirm()}
+          icon={<SearchOutlined />}
+          size="small"
+          style={{ width: 90, marginRight: 8 }}
+        >
+          Rechercher
+        </Button>
+        <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
+          Réinitialiser
+        </Button>
+      </div>
+    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+  });
 
   const columns = [
     {
-      title: 'Nom du Terminal',
-      dataIndex: 'terminalName',
-      key: 'terminalName',
+      title: 'ID Terminal',
+      dataIndex: 'terminalId',
+      key: 'terminalId',
+      ...getColumnSearchProps('terminalId'),
     },
     {
       title: 'Type de Terminal',
       dataIndex: 'typeTerminal',
       key: 'typeTerminal',
-      render: (text) => text || 'Type inconnu',
+      ...getColumnSearchProps('typeTerminal'),
     },
     {
-      title: 'Niveau de Batterie',
-      dataIndex: 'niveauBatterie',
-      key: 'niveauBatterie',
-      render: (niveauBatterie, record) => renderBatteryIcon(niveauBatterie, record.isCharging),
+      title: 'Adresse MAC',
+      dataIndex: 'macAddress',
+      key: 'macAddress',
+      ...getColumnSearchProps('macAddress'),
     },
     {
-      title: 'En Charge',
-      dataIndex: 'isCharging',
-      key: 'isCharging',
-      render: (isCharging) => (isCharging ? 'Oui' : 'Non'),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (text, record) => (
-        <>
-          <Button type="link" onClick={() => handleViewVerificationHistory(record)}>
-            Historique de Pointage
-          </Button>
-          <Button type="link" icon={<DeleteOutlined />} onClick={() => handleDeleteTerminal(record.macAddress)}>
-            Supprimer
-          </Button>
-        </>
-      ),
-    },
-  ];
-
-  const verificationColumns = [
-    { title: 'N° Pointage', dataIndex: 'uniqueNumber', key: 'uniqueNumber' }, // Ajout du numéro unique
-    { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
-    { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
-    { title: 'Statut du Forfait', dataIndex: 'statutForfait', key: 'statutForfait' },
-    { title: 'Nom de l\'Utilisateur', dataIndex: 'nomUtilisateur', key: 'nomUtilisateur' },
-    { title: 'Rôle Utilisateur', dataIndex: 'roleUtilisateur', key: 'roleUtilisateur' }, // Ajout du rôle de l'utilisateur
-    {
-      title: 'Date de Vérification',
-      dataIndex: 'dateVerification',
-      key: 'dateVerification',
-      render: (text) => new Date(text).toLocaleDateString(),
-    },
-    {
-      title: 'Heure de Vérification',
-      dataIndex: 'dateVerification',
-      key: 'heureVerification',
-      render: (text) => new Date(text).toLocaleTimeString(),
+      title: 'Matricule du Bus',
+      dataIndex: 'busMatricule',
+      key: 'busMatricule',
+      render: (text) => (text ? text : 'N/A'), // Optionnel
     },
   ];
 
   return (
-    <div className="terminal-manager-container">
+    <div className="terminalmanager-container">
       <div className="top-bar">
-        <Button icon={<ArrowLeftOutlined />} type="default" onClick={() => navigate('/home')}>
-          Retour à la page principale
+        {/* Bouton pour revenir au menu principal */}
+        <Button type="default" onClick={() => navigate('/home')} style={{ marginRight: 8 }}>
+          Retour au menu principal
         </Button>
-        <Button icon={<ReloadOutlined />} type="primary" onClick={handleReload} disabled={loading} style={{ marginLeft: 8 }}>
+        <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsCreationModalVisible(true)}>
+          Créer un Terminal
+        </Button>
+        <Button icon={<ReloadOutlined />} type="default" onClick={fetchTerminals} style={{ marginLeft: 8 }}>
           Rafraîchir
         </Button>
-        <Button
-          icon={<PlusOutlined />}
-          type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => setIsCreateModalVisible(true)}
-        >
-          Créer un nouveau terminal
-        </Button>
-      </div>
-      <div className="table-container">
-        {loading ? (
-          <Spin size="large" />
-        ) : (
-          <Table
-            dataSource={terminals}
-            columns={columns}
-            rowKey="macAddress"
-            pagination={{ pageSize: 10 }}
-            bordered
-          />
-        )}
       </div>
 
-      {/* Modal for terminal creation */}
+      <div className="table-container">
+        <Table
+          dataSource={terminals}
+          columns={columns}
+          rowKey="id"
+          loading={loading}
+          bordered
+          pagination={{ pageSize: 10 }}
+          size="middle"
+          style={{ backgroundColor: '#f0f2f5', borderRadius: '10px' }}
+        />
+      </div>
+
       <Modal
-        title="Créer un nouveau terminal"
-        visible={isCreateModalVisible}
-        onCancel={() => setIsCreateModalVisible(false)}
+        title="Créer un Terminal"
+        visible={isCreationModalVisible}
+        onCancel={() => setIsCreationModalVisible(false)}
         footer={null}
       >
         <Form form={form} onFinish={handleCreateTerminal}>
           <Form.Item
-            name="macAddress"
-            label="Sélectionner une adresse MAC"
-            rules={[{ required: true, message: 'Veuillez sélectionner une adresse MAC' }]}
+            name="terminalId"
+            label="ID Terminal"
+            rules={[{ required: true, message: 'Veuillez entrer l\'ID du terminal' }]}
           >
-            <Select placeholder="Sélectionner une adresse MAC">
-              {terminals.map((terminal) => (
-                <Option key={terminal.macAddress} value={terminal.macAddress}>
-                  {terminal.terminalName} - {terminal.macAddress}
-                </Option>
-              ))}
-            </Select>
+            <Input />
           </Form.Item>
-
           <Form.Item
             name="typeTerminal"
             label="Type de Terminal"
-            rules={[{ required: true, message: 'Veuillez sélectionner un type de terminal' }]}
+            rules={[{ required: true, message: 'Veuillez sélectionner le type de terminal' }]}
           >
-            <Select placeholder="Sélectionner le type de terminal">
-              <Option value="TPE">TPE</Option>
+            <Select placeholder="Sélectionner un type">
               <Option value="POS">POS</Option>
+              <Option value="RFID">RFID</Option>
             </Select>
           </Form.Item>
-
+          <Form.Item
+            name="macAddress"
+            label="Adresse MAC"
+            rules={[{ required: true, message: 'Veuillez entrer l\'adresse MAC' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="busMatricule"
+            label="Matricule du Bus (optionnel)"
+          >
+            <Input />
+          </Form.Item>
           <Button type="primary" htmlType="submit">
             Créer
           </Button>
         </Form>
-      </Modal>
-
-      {/* Modal for verification history */}
-      <Modal
-        title={`Historique de Pointage - ${selectedTerminal?.terminalName}`}
-        visible={isVerificationModalVisible}
-        onCancel={handleCloseVerificationModal}
-        footer={null}
-        width="80%"
-      >
-        {loadingVerifications ? (
-          <Spin size="large" />
-        ) : (
-          <Table
-            dataSource={forfaitVerifications}
-            columns={verificationColumns}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            bordered
-          />
-        )}
       </Modal>
     </div>
   );
