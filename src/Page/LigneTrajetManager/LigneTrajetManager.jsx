@@ -42,31 +42,6 @@ const LigneTrajetManager = () => {
     }
   };
 
-  // Liste des lignes de trajet (noms de lignes)
-  const lignesDeTrajet = [
-    'Okala - Charbonnage',
-    'PK5 - PJK12',
-    'Gros Bouquet - Lalala',
-    'Belle Vue - Gare routière',
-    'Louis - Nzeng Ayong',
-    'Dragages - Montagne Sainte',
-    'Owendo - Alibandeng',
-    'Angondje - Mindoumbé',
-    'Ambowé - Kangu',
-    'Carrefour Léon - PK9',
-    'Cité de la Démocratie - Mindoumbé',
-    'Akébé - Kinguelé',
-    'Kinguelé - Belle Vue',
-    'Petit Paris - PK8',
-    'PK7 - Owendo',
-    'Sni Owendo - Akanda',
-    'PK12 - Gare routière',
-    'Montagne Sainte - Nzeng Ayong',
-    'Montalier - Carrefour Léon',
-    'Nzeng Ayong - Okala'
-  ];
-
-  // Liste des villes du Gabon
   const villesGabon = [
     'Libreville', 'Port-Gentil', 'Franceville', 'Lambaréné', 'Oyem', 'Moanda',
     'Makokou', 'Koulamoutou', 'Tchibanga', 'Mouila', 'Bitam', 'Ndendé', 'Booué',
@@ -129,6 +104,10 @@ const LigneTrajetManager = () => {
         <Button type="default" onClick={() => navigate('/home')} style={{ marginRight: 8 }}>
           Retour au menu principal
         </Button>
+        {/* Ajout du bouton Transaction qui redirige vers la page BusManager */}
+        <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginRight: 8 }}>
+          Transaction
+        </Button>
         <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsCreationModalVisible(true)}>
           Créer une Ligne
         </Button>
@@ -157,22 +136,14 @@ const LigneTrajetManager = () => {
         footer={null}
       >
         <Form form={form} onFinish={handleCreateLigne}>
-          {/* Champ de sélection du nom de la ligne */}
           <Form.Item
             name="nomLigne"
             label="Nom de la Ligne"
-            rules={[{ required: true, message: 'Veuillez sélectionner un trajet' }]}
+            rules={[{ required: true, message: 'Veuillez saisir le nom de la ligne' }]}
           >
-            <Select placeholder="Sélectionner un trajet">
-              {lignesDeTrajet.map((trajet) => (
-                <Option key={trajet} value={trajet}>
-                  {trajet}
-                </Option>
-              ))}
-            </Select>
+            <Input placeholder="Saisir le nom de la ligne" />
           </Form.Item>
 
-          {/* Champ de sélection du type de ligne */}
           <Form.Item
             name="typeLigne"
             label="Type de Ligne"
@@ -185,7 +156,6 @@ const LigneTrajetManager = () => {
             </Select>
           </Form.Item>
 
-          {/* Champ de sélection de la ville */}
           <Form.Item
             name="ville"
             label="Ville"

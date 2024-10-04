@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Table, Input, message, Modal, Form, Select } from 'antd';
 import { PlusOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom'; // Importation du hook pour la navigation
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../axiosConfig';
 import './VehiculeManager.css';
 
@@ -9,13 +9,14 @@ const { Option } = Select;
 
 const VehiculeManager = () => {
   const [vehicules, setVehicules] = useState([]);
+  const [buses, setBuses] = useState([]); // Récupération des bus pour trouver les chauffeurs
   const [loading, setLoading] = useState(false);
   const [isCreationModalVisible, setIsCreationModalVisible] = useState(false);
   const [lignes, setLignes] = useState([]); // Trajets disponibles
   const [terminals, setTerminals] = useState([]); // Adresses MAC disponibles
   const [form] = Form.useForm();
 
-  const navigate = useNavigate(); // Hook pour la navigation
+  const navigate = useNavigate();
 
   // Récupérer les véhicules
   const fetchVehicules = useCallback(async () => {
@@ -30,11 +31,21 @@ const VehiculeManager = () => {
     }
   }, []);
 
+  // Récupérer les bus depuis BusManager
+  const fetchBuses = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/buses');
+      setBuses(response.data); // Stocker les bus pour obtenir les informations du chauffeur
+    } catch (error) {
+      message.error('Erreur lors de la récupération des bus.');
+    }
+  }, []);
+
   // Récupérer les lignes de trajet disponibles
   const fetchLignes = useCallback(async () => {
     try {
       const response = await axiosInstance.get('/lignes');
-      setLignes(response.data); // Stocker les lignes de trajet
+      setLignes(response.data);
     } catch (error) {
       message.error('Erreur lors de la récupération des lignes de trajet.');
     }
@@ -44,7 +55,7 @@ const VehiculeManager = () => {
   const fetchTerminals = useCallback(async () => {
     try {
       const response = await axiosInstance.get('/terminals');
-      setTerminals(response.data); // Stocker les adresses MAC
+      setTerminals(response.data);
     } catch (error) {
       message.error('Erreur lors de la récupération des terminaux.');
     }
@@ -53,9 +64,10 @@ const VehiculeManager = () => {
   // Appeler les APIs lors du chargement de la page
   useEffect(() => {
     fetchVehicules();
+    fetchBuses();
     fetchLignes();
     fetchTerminals();
-  }, [fetchVehicules, fetchLignes, fetchTerminals]);
+  }, [fetchVehicules, fetchBuses, fetchLignes, fetchTerminals]);
 
   // Créer un nouveau véhicule
   const handleCreateVehicule = async (values) => {
@@ -70,6 +82,18 @@ const VehiculeManager = () => {
     }
   };
 
+  // Fonction pour générer les ID de terminaux (Ter01, Ter02, etc.)
+  const getTerminalId = (index) => {
+    return `Ter${(index + 1).toString().padStart(2, '0')}`; // Génère Ter01, Ter02, etc.
+  };
+
+  // Fonction pour trouver le nom du chauffeur associé au terminal
+  const getChauffeurName = (terminalId) => {
+    const bus = buses.find((bus) => bus.macAddress === terminalId);
+    return bus ? bus.chauffeurNom : 'N/A'; // Retourne le nom du chauffeur ou 'N/A'
+  };
+
+  // Fonction de recherche dans les colonnes
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
       <div style={{ padding: 8 }}>
@@ -98,6 +122,7 @@ const VehiculeManager = () => {
     onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
   });
 
+  // Colonnes de la table
   const columns = [
     {
       title: 'Immatriculation',
@@ -113,14 +138,20 @@ const VehiculeManager = () => {
     },
     {
       title: 'Chauffeur',
-      dataIndex: 'chauffeur',
+      dataIndex: 'macAddress', // Utilisation de l'ID terminal pour récupérer le nom du chauffeur
       key: 'chauffeur',
-      ...getColumnSearchProps('chauffeur'),
+      render: (terminalId) => getChauffeurName(terminalId), // Afficher le nom du chauffeur
     },
     {
-      title: 'Adresse MAC',
+      title: 'ID Terminal',
       dataIndex: 'macAddress',
       key: 'macAddress',
+      render: (_, __, index) => getTerminalId(index), // Afficher Ter01, Ter02, etc.
+    },
+    {
+      title: 'Marque',
+      dataIndex: 'marque',
+      key: 'marque',
       render: (text) => (text ? text : 'N/A'), // Optionnel
     },
   ];
@@ -131,6 +162,10 @@ const VehiculeManager = () => {
         {/* Bouton pour revenir au menu principal */}
         <Button type="default" onClick={() => navigate('/home')} style={{ marginRight: 8 }}>
           Retour au menu principal
+        </Button>
+        {/* Bouton "Transaction" qui redirige vers BusManager */}
+        <Button type="primary" onClick={() => navigate('/bus-manager')} style={{ marginRight: 8 }}>
+          Transaction
         </Button>
         <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsCreationModalVisible(true)}>
           Créer un Véhicule
@@ -167,7 +202,7 @@ const VehiculeManager = () => {
           >
             <Input />
           </Form.Item>
-          
+
           {/* Champ pour sélectionner le trajet */}
           <Form.Item
             name="trajet"
@@ -183,19 +218,27 @@ const VehiculeManager = () => {
             </Select>
           </Form.Item>
 
-          {/* Champ pour sélectionner l'adresse MAC */}
+          {/* Champ pour sélectionner l'ID terminal */}
           <Form.Item
             name="macAddress"
-            label="Adresse MAC"
-            rules={[{ required: false, message: 'Veuillez sélectionner une adresse MAC' }]}
+            label="ID Terminal"
+            rules={[{ required: false, message: 'Veuillez sélectionner un ID Terminal' }]}
           >
-            <Select placeholder="Sélectionner une adresse MAC">
+            <Select placeholder="Sélectionner un ID Terminal">
               {terminals.map((terminal) => (
                 <Option key={terminal.macAddress} value={terminal.macAddress}>
-                  {terminal.macAddress}
+                  {getTerminalId(terminals.indexOf(terminal))}
                 </Option>
               ))}
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="marque"
+            label="Marque"
+            rules={[{ required: false, message: 'Veuillez entrer la marque du véhicule (optionnel)' }]}
+          >
+            <Input />
           </Form.Item>
 
           <Form.Item

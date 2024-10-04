@@ -111,11 +111,15 @@ const BusManager = () => {
     }
   };
 
-  const handleViewBusHistory = (bus) => {
-    setSelectedBus(bus);
-    const history = busHistories[bus.macAddress] || [];
-    setSelectedBusHistory(history);
-    setIsHistoryModalVisible(true);
+  const handleViewBusHistory = async (bus) => {
+    try {
+      const response = await axiosInstance.get(`/buses/mac/${bus.macAddress}/history`);
+      setSelectedBus(bus);
+      setSelectedBusHistory(response.data);
+      setIsHistoryModalVisible(true);
+    } catch (error) {
+      message.error("Erreur lors de la récupération de l'historique.");
+    }
   };
 
   const isEditing = (record) => record.key === editingKey;
@@ -262,9 +266,9 @@ const BusManager = () => {
     },
     {
       title: 'Fin du Trajet',
-      dataIndex: 'finTrajet',
+      dataIndex: 'dateChange', // Continue to display the change date but under "Fin du Trajet"
       key: 'finTrajet',
-      render: (text) => (text ? new Date(text).toLocaleString() : ''), // Si pas encore terminée, case vide
+      render: (text) => (text ? new Date(text).toLocaleString() : 'En cours'),
     },
     {
       title: 'Nom du Terminal',
@@ -335,6 +339,12 @@ const BusManager = () => {
       }),
     };
   });
+
+  // Fonction pour récupérer le nom du terminal en fonction de l'adresse MAC
+  const getTerminalName = (macAddress) => {
+    const bus = buses.find((b) => b.macAddress === macAddress);
+    return bus ? bus.terminalName : macAddress; // Retourne le nom du terminal ou l'adresse MAC si non trouvé
+  };
 
   return (
     <div className="busmanager-container">
@@ -469,16 +479,19 @@ const BusManager = () => {
         <Table
           dataSource={selectedBusHistory}
           columns={[
-            { title: 'Modèle', dataIndex: 'modele', key: 'modele', ...getColumnSearchProps('modele', '#87d068') },
-            { title: 'Immatriculation', dataIndex: 'matricule', key: 'matricule', ...getColumnSearchProps('matricule', '#108ee9') },
-            { title: 'Marque', dataIndex: 'marque', key: 'marque', ...getColumnSearchProps('marque', '#ff6f61') },
-            { title: 'Dernière Destination', dataIndex: 'lastDestination', key: 'lastDestination', ...getColumnSearchProps('lastDestination', '#fadb14') },
-            { title: 'Nom du Chauffeur', dataIndex: 'chauffeurNom', key: 'chauffeurNom', ...getColumnSearchProps('chauffeurNom', '#42e6a4') },
-            { title: 'Début du Trajet', dataIndex: 'debutTrajet', key: 'debutTrajet', render: (text) => text ? new Date(text).toLocaleString() : 'N/A' },
-            { title: 'Fin du Trajet', dataIndex: 'finTrajet', key: 'finTrajet', render: (text) => text ? new Date(text).toLocaleString() : '' },
-            { title: 'Nom du Terminal', dataIndex: 'terminalName', key: 'terminalName', ...getColumnSearchProps('terminalName', '#f50') },
+            { title: 'Début du Trajet', dataIndex: 'debutTrajet', key: 'debutTrajet', render: (text) => new Date(text).toLocaleString() }, // Début du Trajet
+            { title: 'Fin du Trajet', dataIndex: 'dateChange', key: 'finTrajet', render: (text) => text ? new Date(text).toLocaleString() : 'En cours' }, // Fin du Trajet
+            { 
+              title: 'ID Tablette', 
+              dataIndex: 'busMacAddress', 
+              key: 'busMacAddress', 
+              render: (macAddress) => getTerminalName(macAddress)  // Affiche le nom du terminal à la place de l'adresse MAC
+            },
+            { title: 'Nom du Chauffeur', dataIndex: 'chauffeurNom', key: 'chauffeurNom' },
+            { title: 'Numéro Unique du Chauffeur', dataIndex: 'chauffeurUniqueNumber', key: 'chauffeurUniqueNumber' },
+            { title: 'Destination', dataIndex: 'destination', key: 'destination' },
           ]}
-          rowKey={(record) => `${record.macAddress}-${record.debutTrajet}`}
+          rowKey={(record) => `${record.busMacAddress}-${record.dateChange}`}
           pagination={{ pageSize: 5 }}
         />
       </Modal>

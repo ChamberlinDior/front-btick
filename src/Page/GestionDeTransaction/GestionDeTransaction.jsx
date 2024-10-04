@@ -9,14 +9,13 @@ const GestionDeTransaction = () => {
   const [forfaits, setForfaits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Pour naviguer entre les pages
+  const navigate = useNavigate();
 
   // Récupérer toutes les vérifications de forfaits depuis le backend
   useEffect(() => {
     setLoading(true);
-    axios.get('http://192.168.1.79:8080/api/forfait-verifications')
+    axios.get('http://51.178.42.116:8085/api/forfait-verifications')
       .then(response => {
-        // Trier les transactions par date, de la plus récente à la plus ancienne
         const sortedForfaits = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
         setForfaits(sortedForfaits);
         setLoading(false);
@@ -32,7 +31,7 @@ const GestionDeTransaction = () => {
   // Rafraîchir les données de vérification de forfaits
   const handleRefresh = () => {
     setLoading(true);
-    axios.get('http://192.168.1.79:8080/api/forfait-verifications')
+    axios.get('http://51.178.42.116:8085/api/forfait-verifications')
       .then(response => {
         const sortedForfaits = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
         setForfaits(sortedForfaits);
@@ -48,7 +47,7 @@ const GestionDeTransaction = () => {
   };
 
   return (
-    <div className="gestion-forfait-page">
+    <div className="gestion-transaction-page">
       {/* Navbar */}
       <div className="top-bar">
         <Button icon={<PlusOutlined />} type="primary" onClick={() => navigate('/create-client')}>
@@ -82,18 +81,7 @@ const GestionDeTransaction = () => {
           <Table
             dataSource={forfaits}
             columns={[
-              { title: 'ID Transaction', dataIndex: 'id', key: 'id' }, // Colonne pour l'identifiant unique
-              { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
-              { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
-              { title: 'Statut du Forfait', dataIndex: 'statutForfait', key: 'statutForfait' },
-              { 
-                title: 'Nom du Terminal', 
-                dataIndex: 'androidId', 
-                key: 'androidId',
-                render: (text) => text === '67404a359fea20a2' ? 'Terminal 1' : 'Terminal'
-              }, // Remplacement du nom du terminal par "Terminal 1" pour l'adresse MAC spécifique
-              { title: 'Rôle Utilisateur', dataIndex: 'roleUtilisateur', key: 'roleUtilisateur' },
-              { title: 'Nom de l\'Utilisateur', dataIndex: 'nomUtilisateur', key: 'nomUtilisateur' },
+              { title: 'ID Transaction', dataIndex: 'id', key: 'id' },
               { 
                 title: 'Date de Vérification', 
                 dataIndex: 'dateVerification', 
@@ -106,6 +94,17 @@ const GestionDeTransaction = () => {
                 key: 'heureVerification', 
                 render: text => new Date(text).toLocaleTimeString() 
               },
+              { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
+              { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
+              { title: 'Statut du Forfait', dataIndex: 'statutForfait', key: 'statutForfait' },
+              { 
+                title: 'Nom du Terminal', 
+                dataIndex: 'androidId', 
+                key: 'androidId',
+                render: (text) => text === '67404a359fea20a2' ? 'Ter02' : 'Terminal'
+              },
+              { title: 'Rôle Utilisateur', dataIndex: 'roleUtilisateur', key: 'roleUtilisateur' },
+              { title: 'Nom de l\'Utilisateur', dataIndex: 'nomUtilisateur', key: 'nomUtilisateur' },
             ]}
             rowKey="id"
             bordered

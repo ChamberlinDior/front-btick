@@ -87,7 +87,7 @@ const GestionDesCartes = () => {
   const fetchForfaitVerifications = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://192.168.1.79:8080/api/forfait-verifications');
+      const response = await axios.get('http://51.178.42.116:8085/api/forfait-verifications');
       setForfaits(response.data);
       setLoading(false);
     } catch (error) {

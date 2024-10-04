@@ -1,30 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, Table, Spin, message, Avatar, Tag } from 'antd';
+import { Button, Modal, Table, Spin, message, Avatar, Tag, Form, Input, Select } from 'antd';
 import { PlusOutlined, ReloadOutlined, EditOutlined, EyeOutlined, DeleteOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './UserManager.css';
 
-const getColor = (name) => {
-  const colors = ['#87d068', '#108ee9', '#fadb14', '#ff6f61', '#42e6a4'];
-  const charCode = name.charCodeAt(0);
-  return colors[charCode % colors.length];
-};
+const { Option } = Select;
 
 const UserManager = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [error, setError] = useState(null);
+  const [newUser, setNewUser] = useState({
+    nom: '',
+    prenom: '',
+    role: '',
+    uniqueUserNumber: '',
+  });
   const navigate = useNavigate();
 
-  // Récupération des utilisateurs depuis l'API
+  // Fonction pour générer un numéro unique simple (AAA123, AAB123, etc.)
+  const generateUniqueNumber = (existingNumbers) => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let lastCode = existingNumbers.length > 0 ? existingNumbers[existingNumbers.length - 1].substring(0, 3) : 'AAA';
+    let numPart = parseInt(existingNumbers.length > 0 ? existingNumbers[existingNumbers.length - 1].substring(3) : '123');
+    
+    if (numPart >= 999) {
+      // Si le numéro atteint 999, passer à la combinaison de lettres suivante
+      let lastLetterIndex = letters.indexOf(lastCode[2]);
+      if (lastLetterIndex === 25) {
+        lastCode = lastCode.substring(0, 2) + letters[0];
+        let secondLetterIndex = letters.indexOf(lastCode[1]);
+        lastCode = lastCode[0] + letters[secondLetterIndex + 1] + lastCode[2];
+      } else {
+        lastCode = lastCode.substring(0, 2) + letters[lastLetterIndex + 1];
+      }
+      numPart = 123;
+    } else {
+      numPart += 1;
+    }
+
+    return `${lastCode}${numPart}`;
+  };
+
+  // Chargement initial des utilisateurs
   useEffect(() => {
     setLoading(true);
-    axios.get('http://192.168.1.79:8080/api/utilisateurs')
+    axios.get('http://51.178.42.116:8085/api/utilisateurs')
       .then(response => {
         setUsers(response.data);
         setLoading(false);
@@ -35,11 +62,10 @@ const UserManager = () => {
       });
   }, []);
 
-  // Récupération des transactions pour un utilisateur spécifique
   const fetchUserTransactions = (user) => {
     setLoadingTransactions(true);
-    axios.get('http://192.168.1.79:8080/api/forfait-verifications', {
-      params: { nomClient: user.nom, uniqueUserNumber: user.uniqueUserNumber } // Filtrer par nom et numéro utilisateur unique
+    axios.get('http://51.178.42.116:8085/api/forfait-verifications', {
+      params: { nomClient: user.nom, uniqueUserNumber: user.uniqueUserNumber }
     })
       .then(response => {
         const sortedTransactions = response.data.sort((a, b) => new Date(b.dateVerification) - new Date(a.dateVerification));
@@ -53,23 +79,20 @@ const UserManager = () => {
       });
   };
 
-  // Ouverture du modal pour afficher les détails d'un utilisateur
   const handleShowDetails = (user) => {
     setSelectedUser(user);
-    fetchUserTransactions(user);  // Récupérer uniquement les transactions de cet utilisateur
+    fetchUserTransactions(user);
     setIsDetailModalVisible(true);
   };
 
-  // Fermeture du modal de détails
   const handleCloseDetails = () => {
     setIsDetailModalVisible(false);
     setTransactions([]);
   };
 
-  // Rafraîchissement de la liste des utilisateurs
   const handleRefresh = () => {
     setLoading(true);
-    axios.get('http://192.168.1.79:8080/api/utilisateurs')
+    axios.get('http://51.178.42.116:8085/api/utilisateurs')
       .then(response => {
         setUsers(response.data);
         setLoading(false);
@@ -81,16 +104,27 @@ const UserManager = () => {
       });
   };
 
+  const handleCreateUser = () => {
+    const existingNumbers = users.map(user => user.uniqueUserNumber);
+    const uniqueNumber = generateUniqueNumber(existingNumbers);
+    const newUserWithUniqueNumber = { ...newUser, uniqueUserNumber: uniqueNumber };
+
+    axios.post('http://51.178.42.116:8085/api/utilisateurs', newUserWithUniqueNumber)
+      .then(response => {
+        message.success("Utilisateur créé avec succès !");
+        setUsers([...users, response.data]);
+        setIsCreateModalVisible(false);
+      })
+      .catch(error => {
+        message.error("Erreur lors de la création de l'utilisateur");
+      });
+  };
+
   const columns = [
     {
-      title: 'Profil',
-      dataIndex: 'nom',
-      key: 'avatar',
-      render: (text, record) => (
-        <Avatar style={{ backgroundColor: getColor(record.nom) }}>
-          {record.nom.charAt(0).toUpperCase()}
-        </Avatar>
-      ),
+      title: 'ID Utilisateur',
+      key: 'idUtilisateur',
+      render: (text, record, index) => `0${index + 1}`, // Génération de l'ID Utilisateur (01, 02, etc.)
     },
     {
       title: 'Numéro Utilisateur',
@@ -148,40 +182,13 @@ const UserManager = () => {
     },
   ];
 
-  const transactionsColumns = [
-    { title: 'ID Transaction', dataIndex: 'id', key: 'id' }, 
-    { title: 'Nom du Client', dataIndex: 'nomClient', key: 'nomClient' },
-    { title: 'RFID', dataIndex: 'rfid', key: 'rfid' },
-    { title: 'Statut du Forfait', dataIndex: 'statutForfait', key: 'statutForfait' },
-    { 
-      title: 'Nom du Terminal', 
-      dataIndex: 'androidId', 
-      key: 'androidId',
-      render: (text) => text === '67404a359fea20a2' ? 'Terminal 1' : 'Terminal'
-    }, 
-    { title: 'Rôle Utilisateur', dataIndex: 'roleUtilisateur', key: 'roleUtilisateur' },
-    { title: 'Nom de l\'Utilisateur', dataIndex: 'nomUtilisateur', key: 'nomUtilisateur' },
-    { 
-      title: 'Date de Vérification', 
-      dataIndex: 'dateVerification', 
-      key: 'dateVerification', 
-      render: text => new Date(text).toLocaleDateString('fr-FR') 
-    },
-    { 
-      title: 'Heure de Vérification', 
-      dataIndex: 'dateVerification', 
-      key: 'heureVerification', 
-      render: text => new Date(text).toLocaleTimeString('fr-FR') 
-    },
-  ];
-
   return (
     <div className="usermanager-container">
       <div className="top-bar">
         <Button icon={<ArrowLeftOutlined />} type="default" onClick={() => navigate('/home')} style={{ marginRight: 8 }}>
           Retour au Menu Principal
         </Button>
-        <Button icon={<PlusOutlined />} type="primary">
+        <Button icon={<PlusOutlined />} type="primary" onClick={() => setIsCreateModalVisible(true)}>
           Créer un Utilisateur
         </Button>
         <Button icon={<ReloadOutlined />} type="default" onClick={handleRefresh} style={{ marginLeft: 8 }}>
@@ -206,23 +213,32 @@ const UserManager = () => {
       </div>
 
       <Modal
-        title={`Transactions de ${selectedUser?.nom}`}
-        visible={isDetailModalVisible}
-        onCancel={handleCloseDetails}
-        footer={null}
-        width="80%"
+        title="Créer un Utilisateur"
+        visible={isCreateModalVisible}
+        onCancel={() => setIsCreateModalVisible(false)}
+        onOk={handleCreateUser}
       >
-        {loadingTransactions ? (
-          <Spin size="large" />
-        ) : (
-          <Table
-            dataSource={transactions}
-            columns={transactionsColumns}
-            rowKey="id"
-            bordered
-            pagination={{ pageSize: 10 }}
-          />
-        )}
+        <Form layout="vertical">
+          <Form.Item label="Nom">
+            <Input value={newUser.nom} onChange={(e) => setNewUser({ ...newUser, nom: e.target.value })} />
+          </Form.Item>
+          <Form.Item label="Prénom">
+            <Input value={newUser.prenom} onChange={(e) => setNewUser({ ...newUser, prenom: e.target.value })} />
+          </Form.Item>
+          <Form.Item label="Rôle">
+            <Select
+              value={newUser.role}
+              onChange={(value) => setNewUser({ ...newUser, role: value })}
+              placeholder="Sélectionner un rôle"
+            >
+              <Option value="CASSIER">CASSIER</Option>
+              <Option value="CHAUFFEUR">CHAUFFEUR</Option>
+              <Option value="CONTROLEUR">CONTROLEUR</Option>
+              <Option value="ADMIN">ADMIN</Option>
+              <Option value="AUTRE">AUTRE</Option>
+            </Select>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
